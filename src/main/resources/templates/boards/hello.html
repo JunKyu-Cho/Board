@@ -7,11 +7,28 @@
 <body>
     <h1>테스트 페이지</h1>
 
-    <tbody>
-    <tr th:each="member : ${members}">
-        <td th:text="${member.id}"></td>
-        <td th:text="${member.title}"></td>
-    </tr>
-    </tbody>
+    <div class="container">
+        <div>
+            <table>
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>제목</th>
+                    <th>내용</th>
+                    <th>작성자</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="member : ${members}">
+                    <td th:text="${member.id}"></td>
+                    <td th:text="${member.title}"></td>
+                    <td th:text="${member.content}"></td>
+                    <td th:text="${member.writer}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div> <!-- /container -->
+
 </body>
 </html>

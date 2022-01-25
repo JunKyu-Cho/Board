@@ -1,12 +1,17 @@
 package com.board.basic.repository;
 
 import com.board.basic.domain.Board;
+import com.board.basic.mapper.BoardMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class BoardRepositoryImp implements BoardRepository{
+
+    private final BoardMapper mapper;
 
     @Override
     public int boardCount() {
@@ -16,8 +21,8 @@ public class BoardRepositoryImp implements BoardRepository{
 
     @Override
     public List<Board> readList() {
-//        return sqlSession.getMapper(BoardMapper.class).getList();
-        return null;
+        return mapper.getList();
+//        return null;
     }
 
     @Override

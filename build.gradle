@@ -24,8 +24,9 @@ dependencies {
 
 	// mybatis 사용
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0'
+    implementation 'org.jetbrains:annotations:20.1.0'
 
-	// h2 DB 사용
+    // h2 DB 사용
 	runtimeOnly 'com.h2database:h2'
 
 	compileOnly 'org.projectlombok:lombok'
