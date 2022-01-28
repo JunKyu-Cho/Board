@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>게시판</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+
+    <h2>로그인</h2>
+    <form role="form" method="post" action="/board/login/submit">
+<!--        <label>아이디 : </label><input type="text" name="id"><br>-->
+        <div>
+            <label>아이디 : </label>
+            <div>
+                <input placeholder="id" name="id">
+            </div>
+        </div>
+        <div>
+            <label>패스워드 : </label>
+            <div>
+                <input type="password" placeholder="password" name="password">
+            </div>
+        </div>
+        <div>
+            <button type="submit">로그인</button>
+            <button type="button"  onclick="location.href='/board'">취소</button>
+        </div>
+    </form>
+
+</body>
+</html>

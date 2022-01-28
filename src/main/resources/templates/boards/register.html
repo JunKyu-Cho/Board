@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>게시판</title>
+    <meta http-equiv="Content-Type" content="text/html; application/json; charset=UTF-8" />
+</head>
+
+<script>
+
+
+    function passwordConfirmCheck() {
+        if(document.getElementById('password').value == document.getElementById('password_confirm').value) {
+            document.getElementById('passwordConfirmCheck').innerHTML='비밀번호가 일치합니다.';
+            document.getElementById('passwordConfirmCheck').style.color='blue';
+        } else {
+            document.getElementById('passwordConfirmCheck').innerHTML='비밀번호가 일치하지 않습니다.';
+            document.getElementById('passwordConfirmCheck').style.color='red';
+        }
+    };
+
+
+    function passwordCheck() {
+        if(document.getElementById('password').value.length < 6) {
+            document.getElementById('passwordCheck').innerHTML='비밀번호는 6자리 이상이어야 합니다.';
+            document.getElementById('passwordCheck').style.color='red';
+        } else {
+            document.getElementById('passwordCheck').innerHTML='';
+        }
+    };
+
+</script>
+<body>
+
+    <h2>회원가입</h2>
+    <form role="form" method="post" action="/board/register/submit">
+        <div>
+            <label>아이디</label>
+            <div>
+                <input placeholder="아이디" name="reg_id">
+            </div>
+        </div>
+        <div>
+            <label>패스워드</label>
+            <div>
+                <input type="password" id="password" placeholder="패스워드" name="reg_password" onchange="passwordCheck()" required>
+                <span id="passwordCheck"></span></td>
+            </div>
+        </div>
+        <div>
+            <label>패스워드 확인</label>
+            <div>
+                <input type="password" id="password_confirm" placeholder="패스워드 확인" onchange="passwordConfirmCheck()" required>
+                <span id="passwordConfirmCheck"></span></td>
+            </div>
+        </div>
+
+        <div>
+            <label>이름</label>
+            <div>
+                <input placeholder="이름" name="reg_name">
+            </div>
+        </div>
+        <div>
+            <label>생년월일 : </label>
+            <div>
+                <input type="date" name="date">
+            </div>
+        </div>
+        <div>
+            <button type="submit">로그인</button>
+            <button type="button"  onclick="location.href='/board'">취소</button>
+        </div>
+    </form>
+</body>
+</html>
+

@@ -10,6 +10,6 @@ public interface BoardRepository {
     List<Board> readList();
     Board readOne(Long id);
     void write(Board board);
-    void update(Long id, Board board);
+    void update(Board board);
     void delete(Long id);
 }

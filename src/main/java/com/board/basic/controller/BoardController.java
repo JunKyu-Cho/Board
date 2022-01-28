@@ -1,15 +1,14 @@
 package com.board.basic.controller;
 
 import com.board.basic.domain.Board;
+import com.board.basic.domain.Member;
 import com.board.basic.repository.BoardRepository;
 import com.board.basic.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/board")
@@ -18,18 +17,40 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "boards/hello";
+    @GetMapping("")
+    public String test(Model model) {
+        model.addAttribute("list", boardService.readList());
+        return "/boards/list";
     }
 
-    @GetMapping("/test")
-    public String test(Model model) {
-        model.addAttribute("members", boardService.readList());
-//        model.addAttribute("members", boardService.readList());
-//        model.addAttribute("cnt", boardRepository.boardCount());
-//        model.addAttribute("test", boardRepository.readList());
+    @GetMapping("/login")
+    public String login() {
+        return"/boards/login";
+    }
 
-        return "/boards/hello";
+    @PostMapping("/login/submit")
+    public String loginSubmit(@RequestParam("id") String id, @RequestParam("password") String password) {
+        System.out.println("id = " + id);
+        System.out.println("password = " + password);
+        System.out.println("Login Submit");
+//        return"/boards/login";
+        return "redirect:/board/login";
+    }
+
+    @GetMapping("/register")
+    public String register() {
+        return "/boards/register";
+    }
+
+    @PostMapping("/register/submit")
+    public String registerMember(@RequestBody Member member) {
+
+        System.out.println("member = " + member);
+        return "/boards/login";
+    }
+
+    @GetMapping("/write")
+    public String write() {
+        return"/boards/write";
     }
 }

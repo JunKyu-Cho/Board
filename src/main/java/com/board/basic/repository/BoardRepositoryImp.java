@@ -5,6 +5,8 @@ import com.board.basic.mapper.BoardMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -22,26 +24,29 @@ public class BoardRepositoryImp implements BoardRepository{
     @Override
     public List<Board> readList() {
         return mapper.getList();
-//        return null;
     }
 
     @Override
     public Board readOne(Long id) {
-        return null;
+        return mapper.select(id);
     }
 
     @Override
     public void write(Board board) {
-//        sqlSession.inse rt("Mapper.insert", board);
+        SimpleDateFormat dateFormat = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss");
+        Date time = new Date();
+        board.setRegDate(dateFormat.format(time));
+
+        mapper.insert(board);
     }
 
     @Override
-    public void update(Long id, Board board) {
-
+    public void update(Board board) {
+        mapper.update(board);
     }
 
     @Override
     public void delete(Long id) {
-
+        mapper.delete(id);
     }
 }

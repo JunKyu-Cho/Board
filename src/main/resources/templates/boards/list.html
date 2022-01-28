@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>게시판</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+    <style>
+        nav {
+            width: 100%;
+            text-align: right;
+            border-bottom: 1px solid gray;
+        }
+
+        .container {
+            width: 100%;
+            min-width: 200px;
+        }
+
+        .container table {
+            text-align: center;
+            width: 100%;
+        }
+
+        .container table, th, td {
+            border: 1px solid black;
+        }
+        .th_no {
+            width: 10%
+        }
+        .th_writer, .th_regdate {
+            width: 15%
+        }
+    </style>
+    <nav>
+        <div>
+            <a href="/board/login"><button>로그인</button></a>
+<!--            <a onclick="location.href='/board/login'"><button>로그인</button>-->
+            <a href="/board/register"><button>회원가입</button></a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>게시글 목록</h2>
+        <div>
+            <table>
+                <thead>
+                <tr>
+                    <th class="th_no">번호</th>
+                    <th class="th_title">제목</th>
+                    <th class="th_writer">작성자</th>
+                    <th class="th_regdate">날짜</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="list : ${list}">
+                    <td th:text="${list.id}"></td>
+                    <td th:text="${list.title}"></td>
+                    <td th:text="${list.writer}"></td>
+                    <td th:text="${list.regDate}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div>
+        <form action="/board/write">
+<!--            <button type="submit" disabled="disabled">글쓰기</button>-->
+            <button type="submit">글쓰기</button>
+        </form>
+    </div>
+
+</body>
+</html>

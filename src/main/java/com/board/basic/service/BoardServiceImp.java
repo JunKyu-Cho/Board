@@ -30,16 +30,16 @@ public class BoardServiceImp implements BoardService{
 
     @Override
     public Board read(Long id) {
-        return null;
+        return boardRepository.readOne(id);
     }
 
     @Override
-    public void update(Long id, Board board) {
-
+    public void update(Board board) {
+        boardRepository.update(board);
     }
 
     @Override
     public void delete(Long id) {
-
+        boardRepository.delete(id);
     }
 }

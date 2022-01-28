@@ -9,6 +9,6 @@ public interface BoardService {
     int readCount();
     List<Board> readList();
     Board read(Long id);
-    void update(Long id, Board board);
+    void update(Board board);
     void delete(Long id);
 }
