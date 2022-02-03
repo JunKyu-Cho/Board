@@ -44,15 +44,9 @@ public class BoardController {
         Member dbMember = new Member();
         dbMember = memberService.select(member.getId());
 
-        System.out.println("member = " + member);
-        System.out.println("dbMember = " + dbMember);
-
-        System.out.println("dbMember.getPassword() = " + dbMember.getPassword());
-        System.out.println("member.getPassword() = " + member.getPassword());
-
-        HttpSession session = request.getSession();
         if (member.getPassword().equals(dbMember.getPassword())) {
-            session.setAttribute("user", dbMember);
+            HttpSession session = request.getSession();
+            session.setAttribute("userId", dbMember.getId());
             return "redirect:/board";
         } else {
             return "redirect:/board/login";

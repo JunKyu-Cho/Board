@@ -33,9 +33,12 @@
         }
     </style>
     <nav>
-        <div>
+        <div th:if="${session.userId != null}">
+            <span th:text="'UserID : ' + ${session.userId}"></span>
+            <a href="/board/logout"><button>로그아웃</button></a>
+        </div>
+        <div th:unless="${session.userId != null}">
             <a href="/board/login"><button>로그인</button></a>
-<!--            <a onclick="location.href='/board/login'"><button>로그인</button>-->
             <a href="/board/register"><button>회원가입</button></a>
         </div>
     </nav>
@@ -64,7 +67,7 @@
         </div>
     </div>
 
-    <div>
+    <div th:if="${session.userId != null}">
         <form action="/board/write">
 <!--            <button type="submit" disabled="disabled">글쓰기</button>-->
             <button type="submit">글쓰기</button>
