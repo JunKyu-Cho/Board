@@ -4,11 +4,20 @@ import com.board.basic.domain.Board;
 import com.board.basic.domain.Member;
 import com.board.basic.repository.BoardRepository;
 import com.board.basic.service.BoardService;
+import com.board.basic.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/board")
@@ -16,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class BoardController {
 
     private final BoardService boardService;
+    private final MemberService memberService;
 
     @GetMapping("")
     public String test(Model model) {
@@ -29,23 +39,59 @@ public class BoardController {
     }
 
     @PostMapping("/login/submit")
-    public String loginSubmit(@RequestParam("id") String id, @RequestParam("password") String password) {
-        System.out.println("id = " + id);
-        System.out.println("password = " + password);
-        System.out.println("Login Submit");
-//        return"/boards/login";
-        return "redirect:/board/login";
+    public String loginSubmit(@ModelAttribute Member member, HttpServletRequest request) {
+
+        Member dbMember = new Member();
+        dbMember = memberService.select(member.getId());
+
+        System.out.println("member = " + member);
+        System.out.println("dbMember = " + dbMember);
+
+        System.out.println("dbMember.getPassword() = " + dbMember.getPassword());
+        System.out.println("member.getPassword() = " + member.getPassword());
+
+        HttpSession session = request.getSession();
+        if (member.getPassword().equals(dbMember.getPassword())) {
+            session.setAttribute("user", dbMember);
+            return "redirect:/board";
+        } else {
+            return "redirect:/board/login";
+        }
     }
 
+    // 회원가입 화면
     @GetMapping("/register")
     public String register() {
         return "/boards/register";
     }
 
+    // 회원가입 - 아이디 중복 체크
+    @PostMapping("/register/chkid")
+    @ResponseBody
+    public int checkId(@RequestBody Member member) throws Exception {
+        return memberService.checkId(member.getId());
+    }
+
+    // 회원가입 - 등록
     @PostMapping("/register/submit")
-    public String registerMember(@RequestBody Member member) {
+//    public String registerMember(@RequestBody Member member) {
+    public String registerMember(HttpServletResponse response, @ModelAttribute Member member) throws Exception {
 
         System.out.println("member = " + member);
+
+        try {
+            memberService.insert(member);
+
+            response.setContentType("text/html; charset=UTF-8");
+            PrintWriter out = response.getWriter();
+
+            out.println("<script>alert('회원가입 완료');</script>");
+            out.flush();
+
+        } catch (Exception e) {
+            throw e;
+        }
+
         return "/boards/login";
     }
 

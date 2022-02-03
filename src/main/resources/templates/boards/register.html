@@ -2,54 +2,124 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>게시판</title>
-    <meta http-equiv="Content-Type" content="text/html; application/json; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<!--    <meta http-equiv="Content-Type" content="application/json; charset=UTF-8" />-->
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
+<body>
+<script type="text/javascript">
 
-<script>
+    function confirmChk() {
 
+        if ($("#chkId").val() != 'Y') {
+            alert("아이디 중복 체크가 필요합니다.");
+            return false;
+        }
+
+        console.log($("#passwordConfirmCheck").css("color"));
+        if ($("#passwordConfirmCheck").css("color") != "rgb(0, 0, 255)") {
+            alert("비밀 번호가 일치하지 않습니다.");
+            return false;
+        }
+
+        return true;
+    };
+
+    function validId() {
+        $("#chkId").val('N');
+        $("#chkId").removeAttr('disabled');
+
+    };
 
     function passwordConfirmCheck() {
-        if(document.getElementById('password').value == document.getElementById('password_confirm').value) {
-            document.getElementById('passwordConfirmCheck').innerHTML='비밀번호가 일치합니다.';
-            document.getElementById('passwordConfirmCheck').style.color='blue';
+        if ($("#password").val() == $("#password_confirm").val()) {
+            $("#passwordConfirmCheck").text("비밀번호가 일치합니다.");
+            $("#passwordConfirmCheck").css("color", "blue");
         } else {
-            document.getElementById('passwordConfirmCheck').innerHTML='비밀번호가 일치하지 않습니다.';
-            document.getElementById('passwordConfirmCheck').style.color='red';
+            $("#passwordConfirmCheck").text("비밀번호가 일치하지 않습니다.");
+            $("#passwordConfirmCheck").css("color", "red");
         }
-    };
 
+    };
 
     function passwordCheck() {
-        if(document.getElementById('password').value.length < 6) {
-            document.getElementById('passwordCheck').innerHTML='비밀번호는 6자리 이상이어야 합니다.';
-            document.getElementById('passwordCheck').style.color='red';
+        if($("#password").val().length < 6) {
+            $("#passwordCheck").text("비밀번호는 6자리 이상이어야 합니다.");
+            $("#passwordCheck").css("color", "red");
         } else {
-            document.getElementById('passwordCheck').innerHTML='';
+            $("#passwordCheck").text("");
         }
     };
 
+    function checkId(e) {
+        e.preventDefault();
+
+        $.ajax({
+            type: "post",
+            url: "/board/register/chkid",
+            data: JSON.stringify({"id": $("#id").val()}),
+            dataType: "json",
+            contentType : "application/json;charset=UTF-8",
+            success: function(data) {
+                if(data == 1) {
+                    alert("이미 사용중인 아이디 입니다.");
+                } else if(data == 0) {
+                    alert("사용 가능한 아이디 입니다.");
+                    $("#chkId").attr('disabled', 'disabled');
+                    $("#chkId").attr("value", "Y");
+                }
+            }
+        });
+    };
+
+    function requestBody() {
+        var info = {
+            "id" : $("#id").val(),
+            "password" : $("#password").val(),
+            "name" : $("#name").val(),
+            "birthDate" : $("#birthDate").val()
+        };
+
+        $.ajax({
+            type : "POST",
+            url : "/board/register/submit",
+            async : true,
+            data : JSON.stringify(info),
+            dataType : "json",
+            contentType : "application/json;charset=UTF-8",
+            success : function(data) {
+                alert(data.home);
+            },
+            error : function(error) {
+                console.log(error);
+            }
+        });
+    };
 </script>
-<body>
 
     <h2>회원가입</h2>
-    <form role="form" method="post" action="/board/register/submit">
+    <form onsubmit="return confirmChk()" method="post" action="/board/register/submit">
         <div>
             <label>아이디</label>
             <div>
-                <input placeholder="아이디" name="reg_id">
+<!--                @RequestBody => ajax 사용 => javascript => id 속성 필수-->
+<!--                @ModelAttribute => summit 사용 => 서버 데이터 전송 => name 속성 필수-->
+                <input placeholder="아이디" id="id" name="id" onchange="validId()" required/>
+                <button id="chkId" onclick="checkId(event);" value="N">중복 확인</button>
             </div>
         </div>
         <div>
             <label>패스워드</label>
             <div>
-                <input type="password" id="password" placeholder="패스워드" name="reg_password" onchange="passwordCheck()" required>
+                <input type="password" id="password" name="password" placeholder="패스워드" onchange="passwordCheck()" required />
                 <span id="passwordCheck"></span></td>
             </div>
         </div>
         <div>
             <label>패스워드 확인</label>
             <div>
-                <input type="password" id="password_confirm" placeholder="패스워드 확인" onchange="passwordConfirmCheck()" required>
+                <input type="password" id="password_confirm" name="password_confirm" placeholder="패스워드 확인" onchange="passwordConfirmCheck()" required />
                 <span id="passwordConfirmCheck"></span></td>
             </div>
         </div>
@@ -57,18 +127,19 @@
         <div>
             <label>이름</label>
             <div>
-                <input placeholder="이름" name="reg_name">
+                <input placeholder="이름" id="name" name="name" />
             </div>
         </div>
         <div>
             <label>생년월일 : </label>
             <div>
-                <input type="date" name="date">
+                <input type="date" id="birthDate" name="birthDate" />
             </div>
         </div>
         <div>
             <button type="submit">로그인</button>
-            <button type="button"  onclick="location.href='/board'">취소</button>
+<!--            <button type="button" onclick="requestBody()">로그인</button>-->
+            <button type="button" onclick="location.href='/board'">취소</button>
         </div>
     </form>
 </body>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.board.basic.mapper.MemberMapper">
+    <select id="select" parameterType="String" resultType="Member">
+        SELECT * FROM MEMBER WHERE ID = #{id};
+    </select>
+
+    <insert id="insert" parameterType="Member">
+        INSERT INTO MEMBER VALUES(#{id}, #{password}, #{name}, #{birthDate});
+    </insert>
+
+    <update id="update" parameterType="Member">
+        UPDATE MEMBER SET PASSWORD = #{password} WHERE ID = #{id};
+    </update>
+
+    <delete id="delete" parameterType="String">
+        DELETE FROM MEMBER WHERE id = #{id};
+    </delete>
+
+<!--    int chkId(String id);-->
+    <select id="chkId" parameterType="String" resultType="int">
+        SELECT COUNT(*) FROM MEMBER WHERE ID = #{id};
+    </select>
+
+</mapper>
