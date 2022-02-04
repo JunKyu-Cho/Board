@@ -12,6 +12,14 @@
         SELECT * FROM BOARD WHERE ID = #{id};
     </select>
 
+    <select id="boardList" resultType="int">
+        SELECT COUNT(*) FROM BOARD;
+    </select>
+
+    <select id="selectBoard" resultType="Board">
+        SELECT * FROM BOARD ORDER BY ID DESC LIMIT (#{nowPage} - 1) * #{cntPerPage}, #{cntPerPage}
+    </select>
+
     <insert id="insert" parameterType="Board">
         INSERT INTO BOARD(TITLE, CONTENT, WRITER, REGDATE) VALUES (#{title}, #{content}, #{writer}, #{regDate});
     </insert>

@@ -30,7 +30,7 @@
         }
 
         .container table {
-            text-align: center;
+            text-align: left;
             width: 100%;
         }
 
@@ -48,10 +48,19 @@
     <div class="container">
         <h2>게시글 목록</h2>
         <div>
+            <div style="float: right;">
+                <select id="cntPerPage" name="sel" onchange="selChange()">
+                    <option value="5" th:selected="${paging.cntPerPage == 5}">5줄 보기</option>
+                    <option value="10" th:selected="${paging.cntPerPage == 10}">10줄 보기</option>
+                    <option value="15" th:selected="${paging.cntPerPage == 15}">15줄 보기</option>
+                    <option value="20" th:selected="${paging.cntPerPage == 20}">20줄 보기</option>
+                </select>
+            </div> <!-- 옵션선택 끝 -->
+
             <table>
                 <thead>
                 <tr>
-                    <th class="th_no">번호</th>
+                    <th class="th_no">No.</th>
                     <th class="th_title">제목</th>
                     <th class="th_writer">작성자</th>
                     <th class="th_regdate">날짜</th>
@@ -60,7 +69,7 @@
                 <tbody>
                 <tr th:each="list : ${list}">
                     <td th:text="${list.id}"></td>
-                    <td th:text="${list.title}"></td>
+                    <td><a th:href="@{board/content(id=${list.id})}" th:text="${list.title}"></a></td>
                     <td th:text="${list.writer}"></td>
                     <td th:text="${list.regDate}"></td>
                 </tr>

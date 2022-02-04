@@ -2,9 +2,11 @@ package com.board.basic.controller;
 
 import com.board.basic.domain.Board;
 import com.board.basic.domain.Member;
+import com.board.basic.domain.Paging;
 import com.board.basic.repository.BoardRepository;
 import com.board.basic.service.BoardService;
 import com.board.basic.service.MemberService;
+import com.board.basic.service.PagingService;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Controller;
@@ -26,11 +28,22 @@ public class BoardController {
 
     private final BoardService boardService;
     private final MemberService memberService;
+    private final PagingService pagingService;
 
     // 게시판 메인 맵핑 (게시물 리스트)
     @GetMapping("")
-    public String mainView(Model model) {
+    public String mainView(Model model, Paging paging) {
         model.addAttribute("list", boardService.readList());
+        /*
+        int totCount = pagingService.countBoard();
+
+        Paging page = new Paging();
+        model.addAttribute("paging", page);
+        */
+        
+        //페이지 작업
+        //https://freehoon.tistory.com/112
+        
         return "/boards/board";
     }
 
