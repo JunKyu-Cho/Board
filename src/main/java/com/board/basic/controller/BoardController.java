@@ -27,17 +27,35 @@ public class BoardController {
     private final BoardService boardService;
     private final MemberService memberService;
 
+    // 게시판 메인 맵핑 (게시물 리스트)
     @GetMapping("")
-    public String test(Model model) {
+    public String mainView(Model model) {
         model.addAttribute("list", boardService.readList());
-        return "/boards/list";
+        return "/boards/board";
     }
 
+    // 글 작성 화면 맵핑
+    @GetMapping("/write")
+    public String write() {
+        return"/boards/write";
+    }
+    
+    // 글 작성
+    @PostMapping("/write/add")
+    public String addContext(Board board) {         // @ModelAttribute는 생략 가능
+        System.out.println("board = " + board);
+
+        boardService.write(board);
+        return "redirect:/board";
+    }
+
+    // 로그인 화면 맵핑
     @GetMapping("/login")
     public String login() {
         return"/boards/login";
     }
 
+    // 로그인
     @PostMapping("/login/submit")
     public String loginSubmit(@ModelAttribute Member member, HttpServletRequest request) {
 
@@ -53,7 +71,17 @@ public class BoardController {
         }
     }
 
-    // 회원가입 화면
+    // 로그아웃
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request) {
+        request.getSession().invalidate();
+
+        String url = request.getHeader("REFERER");
+        System.out.println("url = " + url);
+        return "redirect:" + url;
+    }
+
+    // 회원가입 화면 맵핑
     @GetMapping("/register")
     public String register() {
         return "/boards/register";
@@ -62,35 +90,32 @@ public class BoardController {
     // 회원가입 - 아이디 중복 체크
     @PostMapping("/register/chkid")
     @ResponseBody
-    public int checkId(@RequestBody Member member) throws Exception {
+    public int checkId(@RequestBody Member member) throws Exception {       // @RequestBody 사용 => ajax 사용 하여 json 형식 data 전달 필요
         return memberService.checkId(member.getId());
     }
 
     // 회원가입 - 등록
     @PostMapping("/register/submit")
 //    public String registerMember(@RequestBody Member member) {
-    public String registerMember(HttpServletResponse response, @ModelAttribute Member member) throws Exception {
+    public String registerMember(HttpServletResponse response, @ModelAttribute Member member) throws IOException {     //@ModelAttribute 사용
 
         System.out.println("member = " + member);
 
         try {
             memberService.insert(member);
 
+            /* Controller 에서 Alert 창 출력 방법 */
             response.setContentType("text/html; charset=UTF-8");
             PrintWriter out = response.getWriter();
 
             out.println("<script>alert('회원가입 완료');</script>");
             out.flush();
+            /* Controller 에서 Alert 창 출력 방법 */
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw e;
         }
 
         return "/boards/login";
-    }
-
-    @GetMapping("/write")
-    public String write() {
-        return"/boards/write";
     }
 }

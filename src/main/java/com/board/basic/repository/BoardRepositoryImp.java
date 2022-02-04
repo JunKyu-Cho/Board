@@ -3,6 +3,7 @@ package com.board.basic.repository;
 import com.board.basic.domain.Board;
 import com.board.basic.mapper.BoardMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Repository;
 
 import java.text.SimpleDateFormat;
@@ -13,6 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BoardRepositoryImp implements BoardRepository{
 
+    /*
     private final BoardMapper mapper;
 
     @Override
@@ -49,4 +51,39 @@ public class BoardRepositoryImp implements BoardRepository{
     public void delete(Long id) {
         mapper.delete(id);
     }
+    */
+
+
+    private final SqlSession session;
+
+    @Override
+    public int boardCount() {
+        return readList().size();
+    }
+
+    @Override
+    public List<Board> readList() {
+        return  session.selectList("BoardMapper.getList");
+    }
+
+    @Override
+    public Board readOne(Long id) {
+        return session.selectOne("BoardMapper.select", id);
+    }
+
+    @Override
+    public void write(Board board) {
+        session.insert("BoardMapper.insert", board);
+    }
+
+    @Override
+    public void update(Board board) {
+        session.update("BoardMapper.update", board);
+    }
+
+    @Override
+    public void delete(Long id) {
+        session.delete("BoardMapper.delete", id);
+    }
+
 }

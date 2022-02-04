@@ -5,6 +5,16 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
+<nav>
+    <div th:if="${session.userId != null}">
+        <span th:text="'UserID : ' + ${session.userId}"></span>
+        <a href="/board/logout"><button>로그아웃</button></a>
+    </div>
+    <div th:unless="${session.userId != null}">
+        <a href="/board/login"><button>로그인</button></a>
+        <a href="/board/register"><button>회원가입</button></a>
+    </div>
+    </nav>
 
     <h2>로그인</h2>
     <form role="form" method="post" action="/board/login/submit">

@@ -5,6 +5,8 @@ import com.board.basic.domain.Board;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -14,7 +16,12 @@ public class BoardServiceImp implements BoardService{
     private final BoardRepository boardRepository;
 
     @Override
-    public void write(Board board) {
+    public void write(Board board)
+    {
+        SimpleDateFormat dateFormat = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss");
+        Date time = new Date();
+        board.setRegDate(dateFormat.format(time));
+
         boardRepository.write(board);
     }
 
