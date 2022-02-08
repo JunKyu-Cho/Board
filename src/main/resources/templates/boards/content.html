@@ -28,33 +28,42 @@
     <hr />
 
     <section id="container">
-        <form role="form" method="post" action="/board/write/add">
+        <form>
             <table>
                 <tbody>
                 <tr>
                     <td>
-                        <label for="title">제목</label><input type="text" id="title" name="title" />
+                        <label for="title" style="font-weight:bold;">제목</label>
+                        <label id="title" name="title" th:text="${board.title}"></label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <label for="writer" style="font-weight:bold;">작성자</label>
+                        <label id="writer" name="writer" th:text="${board.writer}"></label>
+
+                        <label for="regDate" style="font-weight:bold;">작성일</label>
+                        <label id="regDate" name="regDate" th:text="${board.regDate}"></label>
+
+                        <label for="viewCount" style="font-weight:bold;">조회수</label>
+                        <label id="viewCount" name="viewCount" th:text="${board.viewCount}"></label>
                     </td>
                 </tr>
                 <tr>
-                    <td>
-                        <label for="content">내용</label><textarea style="resize: none; width: 500px; height: 300px" id="content" name="content" ></textarea>
-                    </td>
                 </tr>
                 <tr>
                     <td>
-                        <label for="writer">작성자</label>
-                        <label th:if="${session.userId != null}" type="text" id="writer" name="writer" th:text="${session.userId}" />
-<!--                        <input th:unless="${session.userId != null}" type="text" id="writer" name="writer" />-->
+                        <label style="font-weight:bold;">내용</label>
+                        <br>
+                        <label style="display:inline-block; width: 500px; height: 300px">
+                            <th:block th:each="text : ${content}">
+                                <p th:text="${text}"></p>
+                            </th:block>
+                        </label>
                     </td>
                 </tr>
-                <tr>
-                    <td>
-                        <th:block th:if="${session.userId != null}">
-                            <button  type="submit">작성</button>
-                        </th:block>
-                    </td>
-                </tr>
+
                 </tbody>
             </table>
         </form>

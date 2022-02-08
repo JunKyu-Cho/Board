@@ -4,6 +4,10 @@
 
 <!--<mapper namespace="com.board.basic.mapper.BoardMapper">-->
 <mapper namespace="BoardMapper">
+    <update id="viewCountUp" parameterType="long">
+        UPDATE BOARD SET viewCount = viewCount+1 WHERE ID = #{id};
+    </update>
+
     <select id="getList" resultType="Board">
         SELECT * FROM BOARD;
     </select>
@@ -17,7 +21,7 @@
     </select>
 
     <select id="selectBoard" resultType="Board">
-        SELECT * FROM BOARD ORDER BY ID DESC LIMIT (#{nowPage} - 1) * #{cntPerPage}, #{cntPerPage}
+        SELECT * FROM BOARD ORDER BY ID DESC LIMIT (#{page} - 1) * #{cntPerPage}, #{cntPerPage}
     </select>
 
     <insert id="insert" parameterType="Board">

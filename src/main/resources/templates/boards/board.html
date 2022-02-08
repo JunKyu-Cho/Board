@@ -4,19 +4,6 @@
     <title>게시판</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-    <nav>
-        <div th:if="${session.userId != null}">
-            <span th:text="'UserID : ' + ${session.userId}"></span>
-            <a href="/board/logout"><button>로그아웃</button></a>
-        </div>
-        <div th:unless="${session.userId != null}">
-            <a href="/board/login"><button>로그인</button></a>
-            <a href="/board/register"><button>회원가입</button></a>
-        </div>
-    </nav>
-
-</head>
-<body>
     <style>
         nav {
             width: 100%;
@@ -38,13 +25,39 @@
             border: 1px solid black;
         }
         .th_no {
-            width: 10%
+            width: 10%;
         }
         .th_writer, .th_regdate {
-            width: 15%
+            width: 15%;
+        }
+        .th_viewcount {
+            width: 5%;
         }
     </style>
 
+    <script>
+        function selChange() {
+            /*<![CDATA[*/
+            var page = [[${paging.page}]];
+            /*]]*/
+            var sel = document.getElementById('cntPerPage').value;
+		    location.href="board?page=" + page + "&cntPerPage="+sel;
+        }
+    </script>
+
+    <nav>
+        <div th:if="${session.userId != null}">
+            <span th:text="'UserID : ' + ${session.userId}"></span>
+            <a href="/board/logout"><button>로그아웃</button></a>
+        </div>
+        <div th:unless="${session.userId != null}">
+            <a href="/board/login"><button>로그인</button></a>
+            <a href="/board/register"><button>회원가입</button></a>
+        </div>
+    </nav>
+
+</head>
+<body>
     <div class="container">
         <h2>게시글 목록</h2>
         <div>
@@ -64,14 +77,16 @@
                     <th class="th_title">제목</th>
                     <th class="th_writer">작성자</th>
                     <th class="th_regdate">날짜</th>
+                    <th class="th_viewcount">조회수</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="list : ${list}">
                     <td th:text="${list.id}"></td>
-                    <td><a th:href="@{board/content(id=${list.id})}" th:text="${list.title}"></a></td>
+                    <td><a th:href="@{board/contents(id=${list.id})}" th:text="${list.title}"></a></td>
                     <td th:text="${list.writer}"></td>
                     <td th:text="${list.regDate}"></td>
+                    <td th:text="${list.viewCount}"></td>
                 </tr>
                 </tbody>
             </table>
@@ -81,8 +96,24 @@
     <div th:if="${session.userId != null}">
         <form action="/board/write">
 <!--            <button type="submit" disabled="disabled">글쓰기</button>-->
-            <button type="submit">글쓰기</button>
+            <button type="submit" style="float: right;">글쓰기</button>
         </form>
+    </div>
+
+    <div style="display: block; text-align: center;">
+
+        <a th:if="${paging.startPage != 1 }" th:href="@{/board(page=${paging.startPage - 1}, cntPerPage=${paging.cntPerPage})}">&lt;이전</a>
+
+        <th:block th:each="num : ${#numbers.sequence(paging.startPage, paging.endPage)}">
+            <th:bloack th:if="${num} == ${paging.page}">
+               <a th:text="${num}"></a>
+            </th:bloack>
+            <th:block th:unless="${num} == ${paging.page}">
+                <a th:href="@{/board(page=${num}, cntPerPage=${paging.cntPerPage})}" th:text="${num}"></a>
+            </th:block>
+        </th:block>
+
+        <a th:if="${paging.endPage != paging.lastPage}" th:href="@{/board(page=${paging.endPage+1}, cntPerPage=${paging.cntPerPage})}">다음&gt;</a>
     </div>
 
 </body>

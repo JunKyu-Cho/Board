@@ -5,7 +5,7 @@ import com.board.basic.domain.Board;
 import java.util.List;
 
 public interface BoardRepository {
-
+    void viewCountUp(Long id);
     int boardCount();
     List<Board> readList();
     Board readOne(Long id);

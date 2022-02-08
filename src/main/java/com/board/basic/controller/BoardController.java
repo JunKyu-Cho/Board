@@ -13,12 +13,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -30,20 +30,46 @@ public class BoardController {
     private final MemberService memberService;
     private final PagingService pagingService;
 
-    // 게시판 메인 맵핑 (게시물 리스트)
+/*    // 게시판 메인 맵핑 (게시물 리스트)
     @GetMapping("")
     public String mainView(Model model, Paging paging) {
         model.addAttribute("list", boardService.readList());
-        /*
+        *//*
         int totCount = pagingService.countBoard();
 
         Paging page = new Paging();
         model.addAttribute("paging", page);
-        */
+        *//*
         
         //페이지 작업
         //https://freehoon.tistory.com/112
         
+        return "/boards/board";
+    }*/
+
+    // 게시판 메인 맵핑 (게시물 리스트)
+    @GetMapping("")
+    public String mainView(Model model,
+                           @RequestParam(required = false) String page,
+                           @RequestParam(required = false) String cntPerPage) {
+
+        if (page == null && cntPerPage == null) {
+            page = "1";
+            cntPerPage = "5";
+        } else if (page == null) {
+            page = "1";
+        } else if (cntPerPage == null) {
+            cntPerPage = "5";
+        }
+
+        int total = boardService.readCount();
+        Paging paging = new Paging(total, Integer.parseInt(page), Integer.parseInt(cntPerPage));
+
+        System.out.println("paging = " + paging);
+
+        model.addAttribute("paging", paging);
+        model.addAttribute("list", pagingService.selectBoard(paging));
+
         return "/boards/board";
     }
 
@@ -60,6 +86,62 @@ public class BoardController {
 
         boardService.write(board);
         return "redirect:/board";
+    }
+
+    // 게시물 보기
+    @GetMapping("contents")
+    public String readContents(Model model, @RequestParam String id,
+                               HttpServletRequest request,
+                               HttpServletResponse response) {
+
+        // 조회 수 설정 //
+        // 쿠키 조회
+        Cookie oldCookie = null;
+        Cookie cookies[] = request.getCookies();
+        Map map = new HashMap();
+        if(cookies != null) {
+            for (Cookie cookie: cookies) {
+                if(cookie.getName().equals("viewCount"))
+                    oldCookie = cookie;
+            }
+        }
+
+        // 쿠키 없을 경우 - 최초 등록
+        if(oldCookie == null) {
+
+            // 조회 수 증가
+            boardService.viewCountUp(Long.parseLong(id));
+
+            Cookie newCookie = new Cookie("viewCount", "[" + id + "]");
+            newCookie.setPath("/");
+            newCookie.setMaxAge(60 * 60);
+            response.addCookie(newCookie);
+        }
+        // 쿠키 있을 경우
+        else {
+            // 해당 게시물 id 확인
+            if(!oldCookie.getValue().contains("[" + id.toString() + "]")) {
+
+                // 조회 수 증가
+                boardService.viewCountUp(Long.parseLong(id));
+
+                oldCookie.setValue(oldCookie.getValue() + "[" + id + "]");
+                oldCookie.setPath("/");
+                oldCookie.setMaxAge(60 * 60);
+                response.addCookie(oldCookie);
+            }
+        }
+        // 조회 수 설정 //
+
+        // 게시물 조회
+        Board board = boardService.read(Long.parseLong(id));
+
+        // content => 라인별로 List 처리
+        List<String> strList = Arrays.asList(board.getContent().split("\r\n"));
+
+        model.addAttribute("board", board);
+        model.addAttribute("content", strList);
+        return "boards/content";
     }
 
     // 로그인 화면 맵핑

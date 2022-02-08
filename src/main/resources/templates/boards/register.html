@@ -6,98 +6,98 @@
 <!--    <meta http-equiv="Content-Type" content="application/json; charset=UTF-8" />-->
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-</head>
-<body>
-<script type="text/javascript">
 
-    function confirmChk() {
+    <script type="text/javascript">
+        function confirmChk() {
 
-        if ($("#chkId").val() != 'Y') {
-            alert("아이디 중복 체크가 필요합니다.");
-            return false;
-        }
-
-        console.log($("#passwordConfirmCheck").css("color"));
-        if ($("#passwordConfirmCheck").css("color") != "rgb(0, 0, 255)") {
-            alert("비밀 번호가 일치하지 않습니다.");
-            return false;
-        }
-
-        return true;
-    };
-
-    function validId() {
-        $("#chkId").val('N');
-        $("#chkId").removeAttr('disabled');
-
-    };
-
-    function passwordConfirmCheck() {
-        if ($("#password").val() == $("#password_confirm").val()) {
-            $("#passwordConfirmCheck").text("비밀번호가 일치합니다.");
-            $("#passwordConfirmCheck").css("color", "blue");
-        } else {
-            $("#passwordConfirmCheck").text("비밀번호가 일치하지 않습니다.");
-            $("#passwordConfirmCheck").css("color", "red");
-        }
-
-    };
-
-    function passwordCheck() {
-        if($("#password").val().length < 6) {
-            $("#passwordCheck").text("비밀번호는 6자리 이상이어야 합니다.");
-            $("#passwordCheck").css("color", "red");
-        } else {
-            $("#passwordCheck").text("");
-        }
-    };
-
-    function checkId(e) {
-        e.preventDefault();
-
-        $.ajax({
-            type: "post",
-            url: "/board/register/chkid",
-            data: JSON.stringify({"id": $("#id").val()}),
-            dataType: "json",
-            contentType : "application/json;charset=UTF-8",
-            success: function(data) {
-                if(data == 1) {
-                    alert("이미 사용중인 아이디 입니다.");
-                } else if(data == 0) {
-                    alert("사용 가능한 아이디 입니다.");
-                    $("#chkId").attr('disabled', 'disabled');
-                    $("#chkId").attr("value", "Y");
-                }
+            if ($("#chkId").val() != 'Y') {
+                alert("아이디 중복 체크가 필요합니다.");
+                return false;
             }
-        });
-    };
 
-    function requestBody() {
-        var info = {
-            "id" : $("#id").val(),
-            "password" : $("#password").val(),
-            "name" : $("#name").val(),
-            "birthDate" : $("#birthDate").val()
+            console.log($("#passwordConfirmCheck").css("color"));
+            if ($("#passwordConfirmCheck").css("color") != "rgb(0, 0, 255)") {
+                alert("비밀 번호가 일치하지 않습니다.");
+                return false;
+            }
+
+            return true;
         };
 
-        $.ajax({
-            type : "POST",
-            url : "/board/register/submit",
-            async : true,
-            data : JSON.stringify(info),
-            dataType : "json",
-            contentType : "application/json;charset=UTF-8",
-            success : function(data) {
-                alert(data.home);
-            },
-            error : function(error) {
-                console.log(error);
-            }
-        });
-    };
-</script>
+        function validId() {
+            $("#chkId").val('N');
+            $("#chkId").removeAttr('disabled');
 
+        };
+
+        function passwordConfirmCheck() {
+            if ($("#password").val() == $("#password_confirm").val()) {
+                $("#passwordConfirmCheck").text("비밀번호가 일치합니다.");
+                $("#passwordConfirmCheck").css("color", "blue");
+            } else {
+                $("#passwordConfirmCheck").text("비밀번호가 일치하지 않습니다.");
+                $("#passwordConfirmCheck").css("color", "red");
+            }
+
+        };
+
+        function passwordCheck() {
+            if($("#password").val().length < 6) {
+                $("#passwordCheck").text("비밀번호는 6자리 이상이어야 합니다.");
+                $("#passwordCheck").css("color", "red");
+            } else {
+                $("#passwordCheck").text("");
+            }
+        };
+
+        function checkId(e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: "post",
+                url: "/board/register/chkid",
+                data: JSON.stringify({"id": $("#id").val()}),
+                dataType: "json",
+                contentType : "application/json;charset=UTF-8",
+                success: function(data) {
+                    if(data == 1) {
+                        alert("이미 사용중인 아이디 입니다.");
+                    } else if(data == 0) {
+                        alert("사용 가능한 아이디 입니다.");
+                        $("#chkId").attr('disabled', 'disabled');
+                        $("#chkId").attr("value", "Y");
+                    }
+                }
+            });
+        };
+
+        function requestBody() {
+            var info = {
+                "id" : $("#id").val(),
+                "password" : $("#password").val(),
+                "name" : $("#name").val(),
+                "birthDate" : $("#birthDate").val()
+            };
+
+            $.ajax({
+                type : "POST",
+                url : "/board/register/submit",
+                async : true,
+                data : JSON.stringify(info),
+                dataType : "json",
+                contentType : "application/json;charset=UTF-8",
+                success : function(data) {
+                    alert(data.home);
+                },
+                error : function(error) {
+                    console.log(error);
+                }
+            });
+        };
+    </script>
+
+</head>
+<body>
     <nav>
         <div th:if="${session.userId != null}">
             <span th:text="'UserID : ' + ${session.userId}"></span>

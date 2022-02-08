@@ -16,8 +16,14 @@ public class BoardServiceImp implements BoardService{
     private final BoardRepository boardRepository;
 
     @Override
+    public void viewCountUp(Long id) {
+        boardRepository.viewCountUp(id);
+    }
+
+    @Override
     public void write(Board board)
     {
+        // 작성 시간
         SimpleDateFormat dateFormat = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss");
         Date time = new Date();
         board.setRegDate(dateFormat.format(time));

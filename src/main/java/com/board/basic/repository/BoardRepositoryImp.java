@@ -57,6 +57,11 @@ public class BoardRepositoryImp implements BoardRepository{
     private final SqlSession session;
 
     @Override
+    public void viewCountUp(Long id) {
+        session.update("BoardMapper.viewCountUp", id);
+    }
+
+    @Override
     public int boardCount() {
         return readList().size();
     }

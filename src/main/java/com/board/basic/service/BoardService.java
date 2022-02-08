@@ -5,6 +5,7 @@ import com.board.basic.domain.Board;
 import java.util.List;
 
 public interface BoardService {
+    void viewCountUp(Long id);
     void write(Board board);
     int readCount();
     List<Board> readList();
