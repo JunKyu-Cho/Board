@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--<mapper namespace="com.board.basic.mapper.BoardMapper">-->
+<mapper namespace="ReplyMapper">
+
+    <select id="selectAll" parameterType="long" resultType="Reply">
+        SELECT REPLY_ID, CONTENT_ID, WRITER, CONTENT, REGDATE FROM REPLY WHERE CONTENT_ID = #{contentId} ORDER BY REPLY_ID ASC;
+    </select>
+
+    <select id="selectOne" parameterType="long" resultType="Reply" >
+        SELECT * FROM REPLY WHERE CONTENT_ID = #{contentId} AND ROWNUM = '1';
+    </select>
+
+    <insert id="write" parameterType="Reply">
+        INSERT INTO REPLY(CONTENT_ID, WRITER, CONTENT, REGDATE) VALUES (#{contentId}, #{writer}, #{content}, #{regDate});
+    </insert>
+
+    <update id="modify" parameterType="Reply">
+        UPDATE REPLY SET CONTENT = #{content} WHERE REPLY_ID = #{replyId} AND CONTENT)ID = #{contentId};
+    </update>
+
+    <delete id="delete" parameterType="Reply">
+        DELETE FROM BOARD WHERE REPLY_ID = #{replyId} AND CONTENT)ID = #{contentId};
+    </delete>
+
+</mapper>

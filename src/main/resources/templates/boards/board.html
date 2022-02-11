@@ -3,39 +3,89 @@
 <head>
     <title>게시판</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     <style>
         nav {
-            width: 100%;
+            width: 800px;
+            padding: 15px;
             text-align: right;
             border-bottom: 1px solid gray;
         }
 
         .container {
-            width: 100%;
-            min-width: 200px;
+            width: 800px;
+            padding: 15px;
         }
 
-        .container table {
-            text-align: left;
-            width: 100%;
+        .btn {
+            width: 70px;
+            height: 25px;
+            text-decoration: none;
+            text-align: center;
+            border: 1px solid #000;
+            background-color: #fff;
+            color: #000;
+            display: inline-block;
         }
 
-        .container table, th, td {
-            border: 1px solid black;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
         }
+
+        thread {
+            display: table-header-group;
+            vertical-align: middle;
+            border-color: inherit;
+        }
+
+        tr {
+            display: table-row;
+            vertical-align: inherit;
+            border-color: inherit;
+        }
+
+        thread th {
+            padding: 8px 0;
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
+            background: #161616;
+            color: #ccc;
+            font-size: 0.95em;
+            text-align: center;
+            letter-spacing: -0.1em;
+        }
+
+        tbody {
+            display: table-row-group;
+            vertical-align: middle;
+            border-color: inherit;
+        }
+
+        tbody td {
+            padding: 7px 5px;
+            border-top: 1px solid #222;
+            border-bottom: 1px solid #222;
+            line-height: 1.5em;
+            word-break: break-all;
+        }
+
         .th_no {
-            width: 10%;
+            width: 5%;
         }
         .th_writer, .th_regdate {
             width: 15%;
         }
         .th_viewcount {
-            width: 5%;
+            width: 10%;
         }
+
     </style>
 
-    <script>
+    <script type="text/javascript">
         function selChange() {
             /*<![CDATA[*/
             var page = [[${paging.page}]];
@@ -45,31 +95,32 @@
         }
     </script>
 
+</head>
+<body>
     <nav>
         <div th:if="${session.userId != null}">
-            <span th:text="'UserID : ' + ${session.userId}"></span>
-            <a href="/board/logout"><button>로그아웃</button></a>
+            <a href="/board/logout" class="btn" style="width: 80px">로그아웃</a>
         </div>
         <div th:unless="${session.userId != null}">
-            <a href="/board/login"><button>로그인</button></a>
-            <a href="/board/register"><button>회원가입</button></a>
+            <a href="/board/login" class="btn" style="width: 80px">로그인</a>
+            <a href="/board/register" class="btn" style="width: 80px">회원가입</a>
         </div>
     </nav>
 
-</head>
-<body>
     <div class="container">
-        <h2>게시글 목록</h2>
-        <div>
-            <div style="float: right;">
-                <select id="cntPerPage" name="sel" onchange="selChange()">
-                    <option value="5" th:selected="${paging.cntPerPage == 5}">5줄 보기</option>
-                    <option value="10" th:selected="${paging.cntPerPage == 10}">10줄 보기</option>
-                    <option value="15" th:selected="${paging.cntPerPage == 15}">15줄 보기</option>
-                    <option value="20" th:selected="${paging.cntPerPage == 20}">20줄 보기</option>
-                </select>
-            </div> <!-- 옵션선택 끝 -->
+        <h2 style="text-align: center;">게시글 목록</h2>
 
+        <!-- 옵션선택 -->
+        <div style="float: right;">
+            <select id="cntPerPage" name="sel" onchange="selChange()">
+                <option value="5" th:selected="${paging.cntPerPage == 5}">5줄 보기</option>
+                <option value="10" th:selected="${paging.cntPerPage == 10}">10줄 보기</option>
+                <option value="15" th:selected="${paging.cntPerPage == 15}">15줄 보기</option>
+                <option value="20" th:selected="${paging.cntPerPage == 20}">20줄 보기</option>
+            </select>
+        </div>
+
+        <div style="width: 100%">
             <table>
                 <thead>
                 <tr>
@@ -85,23 +136,30 @@
                     <td th:text="${list.id}"></td>
                     <td><a th:href="@{board/contents(id=${list.id})}" th:text="${list.title}"></a></td>
                     <td th:text="${list.writer}"></td>
-                    <td th:text="${list.regDate}"></td>
-                    <td th:text="${list.viewCount}"></td>
+
+                    <!-- 오늘 날짜가 아니면 년. 월. 일  -->
+                    <th:block th:if="${#strings.substring(list.regDate, 0, 10) != #dates.format(#dates.createToday(), 'yyyy-MM-dd')}">
+                        <td th:text="${#strings.substring(list.regDate, 0, 10)}" style="text-align: center;"></td>
+                    </th:block>
+
+                    <!-- 오늘 날짜면 시간 -->
+                    <th:block th:unless="${#strings.substring(list.regDate, 0, 10) != #dates.format(#dates.createToday(), 'yyyy-MM-dd')}">
+                        <td th:text="${#strings.substring(list.regDate, 11)}" style="text-align: center;"></td>
+                    </th:block>
+
+                    <td th:text="${list.viewCount}" style="text-align: center;"></td>
                 </tr>
                 </tbody>
             </table>
         </div>
+
+        <div style="padding-top: 20px; text-align: right" th:if="${session.userId != null}">
+            <a href="/board/write" class="btn" style="width: 80px">글쓰기</a>
+        </div>
     </div>
 
-    <div th:if="${session.userId != null}">
-        <form action="/board/write">
-<!--            <button type="submit" disabled="disabled">글쓰기</button>-->
-            <button type="submit" style="float: right;">글쓰기</button>
-        </form>
-    </div>
-
-    <div style="display: block; text-align: center;">
-
+    <!-- 페이지 정보 -->
+    <div style="width: 800px; padding: 15px; display: block; text-align: center;">
         <a th:if="${paging.startPage != 1 }" th:href="@{/board(page=${paging.startPage - 1}, cntPerPage=${paging.cntPerPage})}">&lt;이전</a>
 
         <th:block th:each="num : ${#numbers.sequence(paging.startPage, paging.endPage)}">

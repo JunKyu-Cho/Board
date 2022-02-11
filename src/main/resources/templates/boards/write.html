@@ -3,63 +3,91 @@
 <head>
     <title>게시판</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <nav>
-        <div th:if="${session.userId != null}">
-            <span th:text="'UserID : ' + ${session.userId}"></span>
-            <a href="/board/logout"><button>로그아웃</button></a>
-        </div>
-        <div th:unless="${session.userId != null}">
-            <a href="/board/login"><button>로그인</button></a>
-            <a href="/board/register"><button>회원가입</button></a>
-        </div>
-    </nav>
+
+    <style>
+        nav {
+            width: 800px;
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid gray;
+        }
+
+        .container {
+            width: 800px;
+            padding: 15px;
+        }
+
+        .btn {
+            width: 70px;
+            height: 25px;
+            text-decoration: none;
+            text-align: center;
+            border: 1px solid #000;
+            background-color: #fff;
+            color: #000;
+            display: inline-block;
+        }
+
+        form {
+            width: 100%;
+        }
+
+        form table {
+            width: 100%;
+        }
+    </style>
+
 </head>
 <body>
+    <nav>
+        <div th:if="${session.userId != null}">
+            <a href="/board/logout" class="btn" style="width: 80px">로그아웃</a>
+        </div>
+        <div th:unless="${session.userId != null}">
+            <a href="/board/login" class="btn" style="width: 80px">로그인</a>
+            <a href="/board/register" class="btn" style="width: 80px">회원가입</a>
+        </div>
+    </nav>
 
-<div id="root">
-    <header>
-        <h1> 게시판</h1>
-    </header>
-    <hr />
+    <div class="container">
+        <h2 style="text-align: center;">게시글 글쓰기</h2>
 
-<!--    <nav>-->
-<!--        홈 - 글 작성-->
-<!--    </nav>-->
-    <hr />
-
-    <section id="container">
-        <form role="form" method="post" action="/board/write/add">
+        <form name="write">
             <table>
                 <tbody>
                 <tr>
-                    <td>
-                        <label for="title">제목</label><input type="text" id="title" name="title" />
+                    <th style="width: 10%">
+                        <label for="title">제목</label>
+                    </th>
+                    <td style="width: 90%">
+                        <input style="width: 100%" type="text" id="title" name="title" />
                     </td>
                 </tr>
                 <tr>
-                    <td>
-                        <label for="content">내용</label><textarea style="resize: none; width: 500px; height: 300px" id="content" name="content" ></textarea>
+                    <th style="width: 10%">
+                        <label for="content">내용</label>
+                    </th>
+                    <td style="width: 90%">
+                        <textarea style="resize: none; width: 100%" rows="20" id="content" name="content" ></textarea>
                     </td>
                 </tr>
                 <tr>
-                    <td>
+                    <th style="width: 10%">
                         <label for="writer">작성자</label>
-                        <label th:if="${session.userId != null}" type="text" id="writer" name="writer" th:text="${session.userId}" />
-<!--                        <input th:unless="${session.userId != null}" type="text" id="writer" name="writer" />-->
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <th:block th:if="${session.userId != null}">
-                            <button  type="submit">작성</button>
-                        </th:block>
+                    </th>
+                    <td style="width: 90%">
+                        <label style="width: 20%" th:if="${session.userId != null}" type="text" id="writer" name="writer" th:text="${session.userId}"/>
                     </td>
                 </tr>
                 </tbody>
             </table>
+            <div style="text-align: center;">
+                <th:block th:if="${session.userId != null}">
+                    <a href="javascript:writeSubmit();" class="btn">작성</a>
+                    <a href="/board" class="btn">취소</a>
+                </th:block>
+            </div>
         </form>
-    </section>
-    <hr />
-</div>
+    </div>
 </body>
 </html>

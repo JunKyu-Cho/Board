@@ -3,72 +3,135 @@
 <head>
     <title>게시판</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <nav>
-        <div th:if="${session.userId != null}">
-            <span th:text="'UserID : ' + ${session.userId}"></span>
-            <a href="/board/logout"><button>로그아웃</button></a>
-        </div>
-        <div th:unless="${session.userId != null}">
-            <a href="/board/login"><button>로그인</button></a>
-            <a href="/board/register"><button>회원가입</button></a>
-        </div>
-    </nav>
+
+    <style>
+        nav {
+            width: 800px;
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid gray;
+        }
+
+        .container {
+            width: 800px;
+            padding: 15px;
+        }
+
+        section strong {
+            display: inline-block;
+            margin: 0 15px 0 5px;
+            font-weight: normal;
+        }
+
+        .btn {
+            width: 70px;
+            height: 25px;
+            text-decoration: none;
+            text-align: center;
+            border: 1px solid #000;
+            background-color: #fff;
+            color: #000;
+            display: inline-block;
+        }
+        div {
+           display: block;
+        }
+
+    </style>
+
+    <script>
+        function writeReply() {
+            var form = document.reply;
+            form.action = "/board/reply/write";
+            form.method ="post";
+            form.submit();
+        };
+    </script>
+
 </head>
 <body>
+    <nav>
+        <div th:if="${session.userId != null}">
+            <a href="/board/logout" class="btn" style="width: 80px">로그아웃</a>
+        </div>
+        <div th:unless="${session.userId != null}">
+            <a href="/board/login" class="btn" style="width: 80px">로그인</a>
+            <a href="/board/register" class="btn" style="width: 80px">회원가입</a>
+        </div>
+    </nav>
 
-<div id="root">
-    <header>
-        <h1> 게시판</h1>
-    </header>
-    <hr />
+    <div class="container">
+        <h2 style="text-align: center;">게시글</h2>
 
-<!--    <nav>-->
-<!--        홈 - 글 작성-->
-<!--    </nav>-->
-    <hr />
+        <div>
+            <article style="width: 100%">
+                <!-- 타이틀 -->
+                <header>
+                    <h1 for="title" style="padding-left: 40px; font-size: 1.2em;">제목 : <th:bloack th:text="${board.title}"></th:bloack></h1>
+                </header>
 
-    <section id="container">
-        <form>
-            <table>
-                <tbody>
-                <tr>
-                    <td>
-                        <label for="title" style="font-weight:bold;">제목</label>
-                        <label id="title" name="title" th:text="${board.title}"></label>
-                    </td>
-                </tr>
+                <!-- 게시물 정보 -->
+                <section style="padding: 0 0 10px; border-bottom: 1px solid #333;">
+                    <a>작성자</a>
+                    <strong th:text="${board.writer}"></strong>
+                    <a>작성일</a>
+                    <strong th:text="${board.regDate}"></strong>
+                    <a>조회수</a>
+                    <strong th:text="${board.viewCount}"></strong>
+                </section>
 
-                <tr>
-                    <td>
-                        <label for="writer" style="font-weight:bold;">작성자</label>
-                        <label id="writer" name="writer" th:text="${board.writer}"></label>
+                <!-- 수정, 삭제, 목록 버튼 -->
+                <div style="margin: 0 0 10px; padding: 10px 0; height: 30px;">
+                    <div style="float: right;">
+                        <th:block th:if="${board.writer == session.userId}">
+                            <a href="#" class="btn">수정</a>
+                            <a href="#" class="btn">삭제</a>
+                        </th:block>
+                        <a href="/board" class="btn">목록</a>
+                    </div>
+                </div>
 
-                        <label for="regDate" style="font-weight:bold;">작성일</label>
-                        <label id="regDate" name="regDate" th:text="${board.regDate}"></label>
+                <!-- 게시물 내용 -->
+                <section>
+                    <div style="height: auto; min-height: 200px; table-layout:fixed; word-break:break-all; border-bottom: 1px solid gray;">
+                        <th:block th:each="text : ${content}">
+                            <p th:text="${text}"></p>
+                        </th:block>
+                    </div>
+                </section>
 
-                        <label for="viewCount" style="font-weight:bold;">조회수</label>
-                        <label id="viewCount" name="viewCount" th:text="${board.viewCount}"></label>
-                    </td>
-                </tr>
-                <tr>
-                </tr>
-                <tr>
-                    <td>
-                        <label style="font-weight:bold;">내용</label>
-                        <br>
-                        <label style="display:inline-block; width: 500px; height: 300px">
-                            <th:block th:each="text : ${content}">
-                                <p th:text="${text}"></p>
-                            </th:block>
-                        </label>
-                    </td>
-                </tr>
+                <!-- 댓글 -->
+                <div>
+                    <!-- HashMap 반복 -->
+                    <div style="padding: 0 0 10px; border-bottom: 1px solid #333;" th:each="map : ${replyList}">
+                        <!-- reply 값 중 -->
+                        <div th:each="reply : ${map.key}">
+                            <span th:text="${reply.replyId}"></span>
+                            <span th:text="${reply.writer}"></span>
+                        </div>
+                        <!-- List<String> 값 중 -->
+                        <div th:each="content : ${map.value}">
+                            <p th:text="${content}"></p>
+                        </div>
+                    </div>
+                </div>
 
-                </tbody>
-            </table>
-        </form>
-    </section>
-    <hr />
-</div>
+                <!-- 댓글 달기 -->
+                <form name="reply" style="padding: 10px 0; width: 100%">
+                    <!-- 게시물 ID, User ID 값 Hidden -->
+                    <input type="hidden" name="contentId" th:value="${board.id}">
+                    <input type="hidden" name="writer" th:value="${session.userId}">
+
+                    <!-- 로그인 상태 일 경우 만 -->
+                    <th:block th:if="${session.userId != null}">
+                        <textarea id="content" name="content" rows="3" style="resize: none; box-sizing: border-box; overflow: auto; padding: 5px; width: 100%"></textarea>
+                        <div style="text-align: right">
+                            <a href="javascript:writeReply();" class="btn">등록</a>
+                        </div>
+                    </th:block>
+                </form>
+            </article>
+        </div>
+    </div>
 </body>
 </html>
