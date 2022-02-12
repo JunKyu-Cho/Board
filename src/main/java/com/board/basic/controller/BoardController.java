@@ -21,10 +21,7 @@ import javax.servlet.http.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.PrivateKey;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping("/board")
@@ -155,8 +152,8 @@ public class BoardController {
         // content => 라인별로 List 처리
         List<String> strList = Arrays.asList(board.getContent().split("\r\n"));
 
-        // 댓글 정보, 댓글 라인별 텍스트 HaspMap
-        HashMap<Reply, List<String>> replyInfo = new HashMap<>();
+        // 댓글 정보, 댓글 라인별 텍스트 HaspMap (Haspmap의 순서를 보장 받기 위함 => LinkedHashMap)
+        Map<Reply, List<String>> replyInfo = new LinkedHashMap<>();
         for(Reply r : replyList) {
             System.out.println("r = " + r);
             List<String> contentList = Arrays.asList(r.getContent().split("\r\n"));

@@ -106,12 +106,12 @@
                     <div style="padding: 0 0 10px; border-bottom: 1px solid #333;" th:each="map : ${replyList}">
                         <!-- reply 값 중 -->
                         <div th:each="reply : ${map.key}">
-                            <span th:text="${reply.replyId}"></span>
-                            <span th:text="${reply.writer}"></span>
+                            <span style="margin-left: 20px; font-size: 12px; color: gray" th:text="${reply.writer}"></span>
+                            <span style="margin-left: 20px; font-size: 12px; color: gray" th:text="${reply.regDate}"></span>
                         </div>
                         <!-- List<String> 값 중 -->
                         <div th:each="content : ${map.value}">
-                            <p th:text="${content}"></p>
+                            <p style="margin: 0 10px" th:text="${content}"></p>
                         </div>
                     </div>
                 </div>

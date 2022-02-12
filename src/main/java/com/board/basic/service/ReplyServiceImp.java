@@ -5,6 +5,8 @@ import com.board.basic.repository.ReplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -20,6 +22,11 @@ public class ReplyServiceImp implements ReplyService{
 
     @Override
     public void write(Reply reply) {
+        // 작성 시간
+        SimpleDateFormat dateFormat = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss");
+        Date time = new Date();
+        reply.setRegDate(dateFormat.format(time));
+
         replyRepository.write(reply);
     }
 

@@ -6,23 +6,28 @@
 <mapper namespace="ReplyMapper">
 
     <select id="selectAll" parameterType="long" resultType="Reply">
-        SELECT REPLY_ID, CONTENT_ID, WRITER, CONTENT, REGDATE FROM REPLY WHERE CONTENT_ID = #{contentId} ORDER BY REPLY_ID ASC;
+<!--        SELECT REPLY_ID, CONTENT_ID, WRITER, CONTENT, REGDATE FROM REPLY WHERE CONTENT_ID = #{contentId} ORDER BY REPLY_ID ASC;-->
+        SELECT replyId, contentId, WRITER, CONTENT, REGDATE FROM REPLY WHERE contentId = #{contentId} ORDER BY replyId ASC;
     </select>
 
     <select id="selectOne" parameterType="long" resultType="Reply" >
-        SELECT * FROM REPLY WHERE CONTENT_ID = #{contentId} AND ROWNUM = '1';
+<!--        SELECT * FROM REPLY WHERE CONTENT_ID = #{contentId} AND ROWNUM = '1';-->
+        SELECT * FROM REPLY WHERE contentId = #{contentId} AND ROWNUM = '1';
     </select>
 
     <insert id="write" parameterType="Reply">
-        INSERT INTO REPLY(CONTENT_ID, WRITER, CONTENT, REGDATE) VALUES (#{contentId}, #{writer}, #{content}, #{regDate});
+<!--        INSERT INTO REPLY(CONTENT_ID, WRITER, CONTENT, REGDATE) VALUES (#{contentId}, #{writer}, #{content}, #{regDate});-->
+        INSERT INTO REPLY(contentId, WRITER, CONTENT, REGDATE) VALUES (#{contentId}, #{writer}, #{content}, #{regDate});
     </insert>
 
     <update id="modify" parameterType="Reply">
-        UPDATE REPLY SET CONTENT = #{content} WHERE REPLY_ID = #{replyId} AND CONTENT)ID = #{contentId};
+<!--        UPDATE REPLY SET CONTENT = #{content} WHERE REPLY_ID = #{replyId} AND CONTENT_ID = #{contentId};-->
+        UPDATE REPLY SET CONTENT = #{content} WHERE replyId = #{replyId} AND contentId = #{contentId};
     </update>
 
     <delete id="delete" parameterType="Reply">
-        DELETE FROM BOARD WHERE REPLY_ID = #{replyId} AND CONTENT)ID = #{contentId};
+<!--        DELETE FROM BOARD WHERE REPLY_ID = #{replyId} AND CONTENT_ID = #{contentId};-->
+        DELETE FROM BOARD WHERE replyId = #{replyId} AND contentId = #{contentId};
     </delete>
 
 </mapper>
