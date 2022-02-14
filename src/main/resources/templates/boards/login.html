@@ -35,19 +35,19 @@
 <script>
         function loginSubmit() {
             var form = document.login;
-            form.action = "/board/login/submit";
+            form.action = "/member/login/submit";
             form.method ="post";
             form.submit();
         };
     </script>
 <body>
-<nav>
+    <nav>
         <div th:if="${session.userId != null}">
-            <a href="/board/logout" class="btn" style="width: 80px">로그아웃</a>
+            <a href="/member/logout" class="btn" style="width: 80px">로그아웃</a>
         </div>
         <div th:unless="${session.userId != null}">
-            <a href="/board/login" class="btn" style="width: 80px">로그인</a>
-            <a href="/board/register" class="btn" style="width: 80px">회원가입</a>
+            <a href="/member/login" class="btn" style="width: 80px">로그인</a>
+            <a href="/member/register" class="btn" style="width: 80px">회원가입</a>
         </div>
     </nav>
 

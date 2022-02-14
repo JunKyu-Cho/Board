@@ -24,6 +24,7 @@
         }
 
         .btn {
+            cursor:pointer;
             width: 70px;
             height: 25px;
             text-decoration: none;
@@ -42,21 +43,36 @@
     <script>
         function writeReply() {
             var form = document.reply;
-            form.action = "/board/reply/write";
+            form.action = "/reply/write";
             form.method ="post";
             form.submit();
         };
+
+        function deleteReply(frm) {
+            var form = document.forms[frm];
+            form.action = "/reply/delete";
+            form.method ="post";
+            form.submit();
+        };
+
+        function replyModify(id) {
+            if( document.getElementById(id).style.display == 'block')
+                document.getElementById(id).style.display = 'none';
+            else
+                document.getElementById(id).style.display = 'block';
+        }
+
     </script>
 
 </head>
 <body>
     <nav>
         <div th:if="${session.userId != null}">
-            <a href="/board/logout" class="btn" style="width: 80px">로그아웃</a>
+            <a href="/member/logout" class="btn" style="width: 80px">로그아웃</a>
         </div>
         <div th:unless="${session.userId != null}">
-            <a href="/board/login" class="btn" style="width: 80px">로그인</a>
-            <a href="/board/register" class="btn" style="width: 80px">회원가입</a>
+            <a href="/member/login" class="btn" style="width: 80px">로그인</a>
+            <a href="/member/register" class="btn" style="width: 80px">회원가입</a>
         </div>
     </nav>
 
@@ -105,13 +121,28 @@
                     <!-- HashMap 반복 -->
                     <div style="padding: 0 0 10px; border-bottom: 1px solid #333;" th:each="map : ${replyList}">
                         <!-- reply 값 중 -->
-                        <div th:each="reply : ${map.key}">
+                        <div th:each="reply : ${map.key}" style="margin-bottom: 10px">
                             <span style="margin-left: 20px; font-size: 12px; color: gray" th:text="${reply.writer}"></span>
                             <span style="margin-left: 20px; font-size: 12px; color: gray" th:text="${reply.regDate}"></span>
+                            <th:block th:if="${session.userId == reply.writer}">
+                                <!-- 댓글 마다 다른 폼이기 때문에 id 값을 달리 주기 위함 -->
+                                <form th:id="'form'+${reply.replyId}" style="float: right;">
+                                    <input type="hidden" name="replyId" th:value="${reply.replyId}">
+                                    <input type="hidden" name="contentId" th:value="${board.id}">
+                                    <a th:onclick="|javascript:replyModify('divModify'+${reply.replyId})|" class="btn" style="width: 40px; height: 25px; margin-top: 5px">수정</a>
+                                    <!-- 해당 폼의 submit을 수행 하기 위해 파라미터 값으로 폼 id 전달 -->
+                                    <a th:onclick="|javascript:deleteReply('form'+${reply.replyId})|" class="btn" style="width: 40px; height: 25px; margin-top: 5px">삭제</a>
+                                </form>
+                                <!-- 댓글 수정 -->
+                                <div th:id="'divModify'+${reply.replyId}" style="display: none; ">
+                                    <textarea  rows="3" style="resize: none; box-sizing: border-box; overflow: auto; padding: 5px; width: 80%"></textarea>
+                                    <a href="#" class="btn" style="width: 40px; height: 25px; margin-top: 5px">확인</a>
+                                </div>
+                            </th:block>
                         </div>
                         <!-- List<String> 값 중 -->
                         <div th:each="content : ${map.value}">
-                            <p style="margin: 0 10px" th:text="${content}"></p>
+                            <p style="margin: 0 10px" th:text="${content}" visibility></p>
                         </div>
                     </div>
                 </div>

@@ -32,6 +32,11 @@
     </style>
 
     <script type="text/javascript">
+        window.onload = function() {
+            document.getElementById('birthDate').value = new Date().toISOString().substring(0, 10);
+            document.getElementById('birthDate').setAttribute("max", new Date().toISOString().substring(0, 10));
+        }
+
         function confirmChk() {
 
             console.log($("#chkId").val());
@@ -82,7 +87,7 @@
 
             $.ajax({
                 type: "post",
-                url: "/board/register/chkid",
+                url: "/member/register/chkid",
                 data: JSON.stringify({"id": $("#id").val()}),
                 dataType: "json",
                 contentType : "application/json;charset=UTF-8",
@@ -107,7 +112,7 @@
 
             $.ajax({
                 type : "POST",
-                url : "/board/register/submit",
+                url : "/member/register/submit",
                 async : true,
                 data : JSON.stringify(info),
                 dataType : "json",
@@ -126,7 +131,7 @@
                 return false;
 
             var form = document.register;
-            form.action = "/board/register/submit";
+            form.action = "/member/register/submit";
             form.method ="post";
             form.submit();
         };
@@ -137,11 +142,11 @@
 <body>
     <nav>
         <div th:if="${session.userId != null}">
-            <a href="/board/logout" class="btn" style="width: 80px">로그아웃</a>
+            <a href="/member/logout" class="btn" style="width: 80px">로그아웃</a>
         </div>
         <div th:unless="${session.userId != null}">
-            <a href="/board/login" class="btn" style="width: 80px">로그인</a>
-            <a href="/board/register" class="btn" style="width: 80px">회원가입</a>
+            <a href="/member/login" class="btn" style="width: 80px">로그인</a>
+            <a href="/member/register" class="btn" style="width: 80px">회원가입</a>
         </div>
     </nav>
 
@@ -155,7 +160,7 @@
                 <div style="margin-bottom: 10px; margin-right: -100px;">
                     <label>아이디</label>
                     <div>
-                        <!-- @RequestBody => ajax 사용 => javascript => id 속성 필수 (Controller 에서 @RequestBody 대신 => @ModelAttribute 사용 가능) -->
+                        <!-- @RequestBody => ajax 사용 => javascript => id 속성 필수
                         <!-- @ModelAttribute => summit 사용 => 서버 데이터 전송 => name 속성 필수 -->
                         <input style="box-sizing: border-box; width: 200px; height: 25px;" placeholder="아이디" id="id" name="id" onchange="validId()" required/>
                         <a href="javascript:checkId();" class="btn" style="width: 80px;">중복 확인</a>
@@ -189,7 +194,7 @@
                 <div style="margin-bottom: 10px;">
                     <label>생년월일 : </label>
                     <div>
-                        <input style="box-sizing: border-box; width: 200px; height: 25px;" type="date" id="birthDate" name="birthDate" />
+                        <input style="box-sizing: border-box; width: 200px; height: 25px;" type="date" id="birthDate" name="birthDate" min="1900-01-01" />
                     </div>
                 </div>
 

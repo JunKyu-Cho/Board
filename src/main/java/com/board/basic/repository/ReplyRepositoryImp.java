@@ -15,9 +15,6 @@ public class ReplyRepositoryImp implements ReplyRepository{
 
     @Override
     public List<Reply> selectAll(long contentId) {
-        System.out.println("contentId = " + contentId);
-        Reply reply = session.selectOne("ReplyMapper.selectOne", contentId);
-        System.out.println("selectOne = " + reply);
         return session.selectList("ReplyMapper.selectAll", contentId);
     }
 

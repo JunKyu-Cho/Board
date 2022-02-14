@@ -29,26 +29,9 @@ import java.util.*;
 public class BoardController {
 
     private final BoardService boardService;
-    private final MemberService memberService;
     private final PagingService pagingService;
     private final ReplyService replyService;
 
-/*    // 게시판 메인 맵핑 (게시물 리스트)
-    @GetMapping("")
-    public String mainView(Model model, Paging paging) {
-        model.addAttribute("list", boardService.readList());
-        *//*
-        int totCount = pagingService.countBoard();
-
-        Paging page = new Paging();
-        model.addAttribute("paging", page);
-        *//*
-        
-        //페이지 작업
-        //https://freehoon.tistory.com/112
-        
-        return "/boards/board";
-    }*/
 
     // 게시판 메인 맵핑 (게시물 리스트)
     @GetMapping("")
@@ -98,7 +81,7 @@ public class BoardController {
     }
 
     // 게시물 보기
-    @GetMapping("contents")
+    @GetMapping("/contents")
     public String readContents(Model model, @RequestParam String id,
                                HttpServletRequest request,
                                HttpServletResponse response) {
@@ -129,7 +112,7 @@ public class BoardController {
         // 쿠키 있을 경우
         else {
             // 해당 게시물 id 확인
-            if(!oldCookie.getValue().contains("[" + id.toString() + "]")) {
+            if (!oldCookie.getValue().contains("[" + id.toString() + "]")) {
 
                 // 조회 수 증가
                 boardService.viewCountUp(Long.parseLong(id));
@@ -140,17 +123,14 @@ public class BoardController {
                 response.addCookie(oldCookie);
             }
         }
-        // 조회 수 설정 //
 
         // 게시물 조회
         Board board = boardService.read(Long.parseLong(id));
-
-        System.out.println("board = " + board);
-
-        List<Reply> replyList = replyService.selectAll(Long.parseLong(id));
-
         // content => 라인별로 List 처리
         List<String> strList = Arrays.asList(board.getContent().split("\r\n"));
+
+        // 댓글 조회
+        List<Reply> replyList = replyService.selectAll(Long.parseLong(id));
 
         // 댓글 정보, 댓글 라인별 텍스트 HaspMap (Haspmap의 순서를 보장 받기 위함 => LinkedHashMap)
         Map<Reply, List<String>> replyInfo = new LinkedHashMap<>();
@@ -161,114 +141,9 @@ public class BoardController {
         }
 
 
-        model.addAttribute("board", board);
-        model.addAttribute("content", strList);
-        model.addAttribute("replyList", replyInfo);
+        model.addAttribute("board", board);         // 게시물 정보
+        model.addAttribute("content", strList);     // 게시물 내용
+        model.addAttribute("replyList", replyInfo); // 댓글 정보
         return "/boards/content";
-    }
-
-    // 로그인 화면 맵핑
-    @GetMapping("/login")
-    public String login(HttpServletRequest request) {
-
-        String referer = request.getHeader("Referer");
-        request.getSession().setAttribute("prevPage", referer);
-
-        System.out.println("referer = " + referer);
-
-        return"/boards/login";
-    }
-
-    // 로그인
-    @PostMapping("/login/submit")
-    public String loginSubmit(@ModelAttribute Member member, HttpServletRequest request) {
-//    public String loginSubmit(@RequestBody Member member, HttpServletRequest request) {
-
-        System.out.println("member = " + member);
-        Member dbMember = new Member();
-        dbMember = memberService.select(member.getId());
-
-        if (member.getPassword().equals(dbMember.getPassword())) {
-            HttpSession session = request.getSession();
-            session.setAttribute("userId", dbMember.getId());
-        } else {
-            System.out.println("/boards/login");
-            return "/boards/login";
-        }
-
-        String redirectUrl = "";
-        HttpSession session = request.getSession();
-        if (session != null) {
-            redirectUrl = (String) session.getAttribute("prevPage");
-            if (redirectUrl != null) {
-                session.removeAttribute("prevPage");
-            } else {
-                return "redirect:/board/login";
-            }
-        }
-
-        System.out.println(redirectUrl);
-        return "redirect:" + redirectUrl;
-    }
-
-    // 로그아웃
-    @GetMapping("/logout")
-    public String logout(HttpServletRequest request) {
-        request.getSession().invalidate();
-
-        String url = request.getHeader("REFERER");
-        System.out.println("url = " + url);
-        return "redirect:" + url;
-    }
-
-    // 회원가입 화면 맵핑
-    @GetMapping("/register")
-    public String register() {
-        return "/boards/register";
-    }
-
-    // 회원가입 - 아이디 중복 체크
-    @PostMapping("/register/chkid")
-    @ResponseBody
-    public int checkId(@ModelAttribute Member member) throws Exception {       // @RequestBody 사용 => ajax 사용 하여 json 형식 data 전달 필요
-        System.out.println("아이디 중복 체크");
-        System.out.println("member = " + member);
-        return memberService.checkId(member.getId());
-    }
-
-    // 회원가입 - 등록
-    @PostMapping("/register/submit")
-//    public String registerMember(@RequestBody Member member) {
-    public String registerMember(HttpServletResponse response, @ModelAttribute Member member) throws IOException {     //@ModelAttribute 사용
-
-        System.out.println("회원가입");
-        System.out.println("member = " + member);
-
-        try {
-            memberService.insert(member);
-
-            /* Controller 에서 Alert 창 출력 방법 */
-            response.setContentType("text/html; charset=UTF-8");
-            PrintWriter out = response.getWriter();
-
-            out.println("<script>alert('회원가입 완료');</script>");
-            out.flush();
-            /* Controller 에서 Alert 창 출력 방법 */
-
-        } catch (IOException e) {
-            throw e;
-        }
-
-        return "/boards/login";
-    }
-
-    @PostMapping("/reply/write")
-    public String writeReply(Reply reply) {
-
-        System.out.println("reply = " + reply);
-        String contentId = Long.toString(reply.getContentId());
-
-        replyService.write(reply);
-        return "redirect:/board/contents?id=" + contentId;
     }
 }
