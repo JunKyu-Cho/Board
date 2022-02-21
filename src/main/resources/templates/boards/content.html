@@ -40,7 +40,7 @@
 
     </style>
 
-    <script>
+    <script type="text/javascript">
         function writeReply() {
             var form = document.reply;
             form.action = "/reply/write";
@@ -56,11 +56,48 @@
         };
 
         function replyModify(id) {
-            if( document.getElementById(id).style.display == 'block')
-                document.getElementById(id).style.display = 'none';
-            else
-                document.getElementById(id).style.display = 'block';
-        }
+
+            var modifyForm = document.getElementById('modifyForm' + id);
+            var divContent = document.getElementById('divContent' + id);
+
+            <!-- 기존 댓글 안보이게. 수정할 textarea는 보이게 설정 -->
+            modifyForm.style.display = 'block';
+            divContent.style.display = 'none';
+
+
+            var str = "";
+            var children = divContent.children;
+            for(var i = 0; i < children.length; i++) {
+                if(i == (children.length - 1))
+                    str += children[i].innerText;
+                else
+                    str += children[i].innerText + "\r\n";
+            }
+
+            <!-- 0: input(replyId), 1: input(contentId), 2: input(page), 3: textarea(content)  -->
+            modifyForm.children[3].value = str;
+        };
+
+        function modifyClick(id) {
+            var form = document.forms['modifyForm' + id];
+            form.action = "/reply/modify";
+            form.method ="post";
+            form.submit();
+        };
+
+        function deleteContent() {
+            var form = document.contentInfo;
+            form.action = "/board/delete";
+            form.method ="get";
+            form.submit();
+        };
+
+        function modifyContent() {
+            var form = document.contentInfo;
+            form.action = "/board/modify";
+            form.method ="post";
+            form.submit();
+        };
 
     </script>
 
@@ -98,13 +135,28 @@
 
                 <!-- 수정, 삭제, 목록 버튼 -->
                 <div style="margin: 0 0 10px; padding: 10px 0; height: 30px;">
-                    <div style="float: right;">
+
+                    <form name="contentInfo" style="float: right;">
+                        <input type="hidden" name="id" th:value="${board.id}">
+                        <input type="hidden" name="title" th:value="${board.title}">
+                        <input type="hidden" name="content" th:value="${board.content}">
+                        <input type="hidden" name="writer" th:value="${board.writer}">
+                        <input type="hidden" name="page" th:value="${pageNo}">
+
+                        <!-- session id값이 같아야 삭제가 가능 -->
                         <th:block th:if="${board.writer == session.userId}">
-                            <a href="#" class="btn">수정</a>
-                            <a href="#" class="btn">삭제</a>
+                            <a href="javascript:modifyContent();" class="btn">수정</a>
+                            <a href="javascript:deleteContent();" class="btn">삭제</a>
                         </th:block>
-                        <a href="/board" class="btn">목록</a>
-                    </div>
+
+                        <th:block th:if="${pageNo != null}">
+                            <a th:href="@{/board(page=${pageNo})}" class="btn">목록</a>
+                        </th:block>
+                        <th:block th:unless="${pageNo != null}">
+                            <a th:href="@{/board}" class="btn">목록</a>
+                        </th:block>
+                    </form>
+
                 </div>
 
                 <!-- 게시물 내용 -->
@@ -114,35 +166,58 @@
                             <p th:text="${text}"></p>
                         </th:block>
                     </div>
+
+                    <!-- 파일 다운로드 -->
+                    <div th:if="${fileList} != null" style="padding: 10px 0; border-bottom: 1px solid gray;">
+                        <strong>첨부파일 : </strong>
+                        <th:block th:each="file : ${fileList}">
+                            <a th:href="@{'/board/download/' + ${file.fileName}}" th:text="${file.oriFilename}"></a>
+                        </th:block>
+                    </div>
+
+
                 </section>
 
                 <!-- 댓글 -->
                 <div>
                     <!-- HashMap 반복 -->
-                    <div style="padding: 0 0 10px; border-bottom: 1px solid #333;" th:each="map : ${replyList}">
+                    <div style="padding: 0 0 10px; border-bottom: 1px solid #333;" th:each="map, i : ${replyList}">
+
                         <!-- reply 값 중 -->
                         <div th:each="reply : ${map.key}" style="margin-bottom: 10px">
+
                             <span style="margin-left: 20px; font-size: 12px; color: gray" th:text="${reply.writer}"></span>
                             <span style="margin-left: 20px; font-size: 12px; color: gray" th:text="${reply.regDate}"></span>
+
                             <th:block th:if="${session.userId == reply.writer}">
                                 <!-- 댓글 마다 다른 폼이기 때문에 id 값을 달리 주기 위함 -->
-                                <form th:id="'form'+${reply.replyId}" style="float: right;">
+                                <form th:id="'form'+${i.index}" style="float: right;">
                                     <input type="hidden" name="replyId" th:value="${reply.replyId}">
                                     <input type="hidden" name="contentId" th:value="${board.id}">
-                                    <a th:onclick="|javascript:replyModify('divModify'+${reply.replyId})|" class="btn" style="width: 40px; height: 25px; margin-top: 5px">수정</a>
+                                    <input type="hidden" name="page" th:value="${pageNo}">
+
+                                    <a th:onclick="|javascript:replyModify(${i.index})|" class="btn" style="width: 40px; height: 25px; margin-top: 5px">수정</a>
                                     <!-- 해당 폼의 submit을 수행 하기 위해 파라미터 값으로 폼 id 전달 -->
-                                    <a th:onclick="|javascript:deleteReply('form'+${reply.replyId})|" class="btn" style="width: 40px; height: 25px; margin-top: 5px">삭제</a>
+<!--                                    <a th:onclick="|javascript:deleteReply('form'+${reply.replyId})|" class="btn" style="width: 40px; height: 25px; margin-top: 5px">삭제</a>-->
+                                    <a th:onclick="|javascript:deleteReply('form'+${i.index})|" class="btn" style="width: 40px; height: 25px; margin-top: 5px">삭제</a>
                                 </form>
+
                                 <!-- 댓글 수정 -->
-                                <div th:id="'divModify'+${reply.replyId}" style="display: none; ">
-                                    <textarea  rows="3" style="resize: none; box-sizing: border-box; overflow: auto; padding: 5px; width: 80%"></textarea>
-                                    <a href="#" class="btn" style="width: 40px; height: 25px; margin-top: 5px">확인</a>
-                                </div>
+                                <form th:id="'modifyForm'+${i.index}" style="display: none; margin-top: 20px">
+                                    <input type="hidden" name="replyId" th:value="${reply.replyId}">
+                                    <input type="hidden" name="contentId" th:value="${board.id}">
+                                    <input type="hidden" name="page" th:value="${pageNo}">
+
+                                    <textarea name="content" rows="3" style="resize: none; box-sizing: border-box; overflow: auto; padding: 5px; width: 750px"></textarea>
+                                    <a th:onclick="|javascript:modifyClick(${i.index})|" class="btn" style="width: 40px; height: 25px; margin-top: 30px; float: right;">확인</a>
+                                </form>
                             </th:block>
                         </div>
                         <!-- List<String> 값 중 -->
-                        <div th:each="content : ${map.value}">
-                            <p style="margin: 0 10px" th:text="${content}" visibility></p>
+                        <div th:id="'divContent'+${i.index}" >
+                            <th:block th:each="content : ${map.value}">
+                                <p style="margin: 0 10px" th:text="${content}" visibility></p>
+                            </th:block>
                         </div>
                     </div>
                 </div>
@@ -152,6 +227,7 @@
                     <!-- 게시물 ID, User ID 값 Hidden -->
                     <input type="hidden" name="contentId" th:value="${board.id}">
                     <input type="hidden" name="writer" th:value="${session.userId}">
+                    <input type="hidden" name="page" th:value="${pageNo}">
 
                     <!-- 로그인 상태 일 경우 만 -->
                     <th:block th:if="${session.userId != null}">

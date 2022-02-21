@@ -37,17 +37,15 @@ public class MemberController {
     public String loginSubmit(@ModelAttribute Member member, HttpServletRequest request) {
 //    public String loginSubmit(@RequestBody Member member, HttpServletRequest request) {
 
-
-
         System.out.println("member = " + member);
         Member dbMember = new Member();
         dbMember = memberService.select(member.getId());
+        System.out.println("dbMember = " + dbMember);
 
         if (member.getPassword().equals(dbMember.getPassword())) {
             HttpSession session = request.getSession();
             session.setAttribute("userId", dbMember.getId());
         } else {
-            System.out.println("/boards/login");
             return "/boards/login";
         }
 
@@ -62,7 +60,10 @@ public class MemberController {
             }
         }
 
-        System.out.println(redirectUrl);
+        // 이전 화면이 로그인 화면 일 경우
+        if(redirectUrl.contains("/member/login"))
+            return "redirect:/board";
+
         return "redirect:" + redirectUrl;
     }
 

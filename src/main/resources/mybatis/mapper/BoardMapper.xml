@@ -24,16 +24,20 @@
         SELECT * FROM BOARD ORDER BY ID DESC LIMIT (#{page} - 1) * #{cntPerPage}, #{cntPerPage}
     </select>
 
-    <insert id="insert" parameterType="Board">
-        INSERT INTO BOARD(TITLE, CONTENT, WRITER, REGDATE) VALUES (#{title}, #{content}, #{writer}, #{regDate});
+<!--    <insert id="insert" parameterType="Board">-->
+    <insert id="insert" parameterType="Board"
+    useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO BOARD(TITLE, CONTENT, WRITER, REGDATE, VIEWCOUNT) VALUES (#{title}, #{content}, #{writer}, #{regDate}, #{viewCount});
     </insert>
 
     <update id="update" parameterType="Board">
-        UPDATE BOARD SET CONTENT = #{content} WHERE ID = #{id};
+        UPDATE BOARD SET TITLE = #{title}, CONTENT = #{content} WHERE ID = #{id};
     </update>
 
     <delete id="delete" parameterType="long">
-        DELETE FROM BOARD WHERE id = #{id};
+        DELETE FROM REPLY WHERE CONTENT_ID = #{id};
+        DELETE FROM BOARD WHERE ID = #{id};
+        DELETE FROM FILE WHERE ID = #{id};
     </delete>
 
 </mapper>

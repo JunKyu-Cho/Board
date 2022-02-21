@@ -38,11 +38,10 @@
     </style>
 
     <script>
-        function writeSubmit() {
-            var form = document.write;
-            form.action = "/board/write/add";
-            form.method = "post";
-            form.enctype = "multipart/form-data";
+        function modifySubmit() {
+            var form = document.modify;
+            form.action = "/board/modify/submit";
+            form.method ="post";
             form.submit();
         }
     </script>
@@ -60,25 +59,25 @@
     </nav>
 
     <div class="container">
-        <h2 style="text-align: center;">게시글 글쓰기</h2>
+        <h2 style="text-align: center;">게시글 글수정</h2>
 
-        <form name="write">
-            <table style="border-spacing: 10px 20px">
+        <form name="modify">
+            <table>
                 <tbody>
                 <tr>
                     <th style="width: 10%">
                         <label for="title">제목</label>
                     </th>
                     <td style="width: 90%">
-                        <input style="width: 100%; box-sizing: border-box;" type="text" id="title" name="title" />
+                        <input style="width: 100%; box-sizing: border-box;" th:value="${board.title}" type="text" id="title" name="title" />
                     </td>
                 </tr>
                 <tr>
                     <th style="width: 10%">
-                        <label for="content">내용</label>
+                        <label for="content" >내용</label>
                     </th>
                     <td style="width: 90%">
-                        <textarea style="resize: none; width: 100%; box-sizing: border-box;" rows="20" id="content" name="content" ></textarea>
+                        <textarea style="resize: none; width: 100%; box-sizing: border-box;" th:text="${board.content}" rows="20" id="content" name="content" ></textarea>
                     </td>
                 </tr>
                 <tr>
@@ -89,22 +88,13 @@
                         <label style="width: 20%" th:if="${session.userId != null}" type="text" id="writer" name="writer" th:text="${session.userId}"/>
                     </td>
                 </tr>
-
-<!--                <form action="/board/uploadMultipleFiles" method="post" enctype="multipart/form-data">-->
-                <tr>
-                    <th style="width: 10%;">
-                        <label>첨부파일</label>
-                    </th>
-                    <td>
-                        <input multiple="multiple" type="file" id="files" name="files"/>
-                    </td>
-                </tr>
                 </tbody>
             </table>
-
             <div style="text-align: center;">
                 <th:block th:if="${session.userId != null}">
-                    <a href="javascript:writeSubmit();" class="btn">작성</a>
+                    <input type="hidden" name="id" th:value="${board.id}">
+                    <input type="hidden" name="page" th:value="${pageNo}">
+                    <a href="javascript:modifySubmit();" class="btn">수정</a>
                     <a href="/board" class="btn">취소</a>
                 </th:block>
             </div>

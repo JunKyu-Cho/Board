@@ -21,14 +21,14 @@ public class BoardServiceImp implements BoardService{
     }
 
     @Override
-    public void write(Board board)
+    public long write(Board board)
     {
         // 작성 시간
         SimpleDateFormat dateFormat = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss");
         Date time = new Date();
         board.setRegDate(dateFormat.format(time));
 
-        boardRepository.write(board);
+        return boardRepository.write(board);
     }
 
     @Override

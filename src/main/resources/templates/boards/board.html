@@ -134,7 +134,7 @@
                 <tbody>
                 <tr th:each="list : ${list}">
                     <td th:text="${list.id}"></td>
-                    <td><a th:href="@{board/contents(id=${list.id})}" th:text="${list.title}"></a></td>
+                    <td><a th:href="@{board/contents(id=${list.id}, page=${paging.page})}" th:text="${list.title}"></a></td>
                     <td th:text="${list.writer}"></td>
 
                     <!-- 오늘 날짜가 아니면 년. 월. 일  -->

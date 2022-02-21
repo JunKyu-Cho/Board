@@ -1,6 +1,7 @@
 package com.board.basic.repository;
 
 import com.board.basic.domain.Board;
+import com.board.basic.domain.UpLoadFile;
 import com.board.basic.mapper.BoardMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.session.SqlSession;
@@ -77,8 +78,8 @@ public class BoardRepositoryImp implements BoardRepository{
     }
 
     @Override
-    public void write(Board board) {
-        session.insert("BoardMapper.insert", board);
+    public long write(Board board) {
+        return session.insert("BoardMapper.insert", board);
     }
 
     @Override

@@ -26,6 +26,10 @@ dependencies {
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0'
     implementation 'org.jetbrains:annotations:20.1.0'
 
+	// 파일 업로드/다운로드
+	implementation 'commons-io:commons-io:2.8.0'
+	implementation 'commons-fileupload:commons-fileupload:1.4'
+
     // h2 DB 사용
 	runtimeOnly 'com.h2database:h2'
 

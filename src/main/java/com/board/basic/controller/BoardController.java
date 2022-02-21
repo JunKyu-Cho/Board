@@ -1,26 +1,25 @@
 package com.board.basic.controller;
 
-import com.board.basic.domain.Board;
-import com.board.basic.domain.Member;
-import com.board.basic.domain.Paging;
-import com.board.basic.domain.Reply;
-import com.board.basic.repository.BoardRepository;
-import com.board.basic.service.BoardService;
-import com.board.basic.service.MemberService;
-import com.board.basic.service.PagingService;
-import com.board.basic.service.ReplyService;
-import com.sun.net.httpserver.HttpsServer;
+import com.board.basic.domain.*;
+import com.board.basic.service.*;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.*;
+import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.security.PrivateKey;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Controller
@@ -31,7 +30,7 @@ public class BoardController {
     private final BoardService boardService;
     private final PagingService pagingService;
     private final ReplyService replyService;
-
+    private final FileService fileService;
 
     // 게시판 메인 맵핑 (게시물 리스트)
     @GetMapping("")
@@ -67,14 +66,33 @@ public class BoardController {
     
     // 글 작성
     @PostMapping("/write/add")
-    public String addContext(Board board, HttpServletRequest request) {         // @ModelAttribute는 생략 가능
+    public String addContext(Board board, HttpServletRequest request, @RequestBody List<MultipartFile> files) throws IOException {         // @ModelAttribute는 생략 가능
 
         String userId =(String)request.getSession().getAttribute("userId");
         if(userId != null) {
             board.setWriter(userId);
 
+            board.setViewCount(0);
             boardService.write(board);
             System.out.println("board = " + board);
+            System.out.println("files = " + files);
+
+            for(MultipartFile file : files){
+                // UUID - 고유번호를 얻기 위함, getExtension() - 파일 확장자 확인
+                String newFilename = UUID.randomUUID() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+
+                // 저장 파일 Full Path
+                String fullPath = "C:/temp/"+ newFilename;
+
+                // 1. 원본 파일 저장
+                file.transferTo(new File(fullPath));
+
+                // 2. 파일 정보 (게시글 id, Full Path, 저장 파일명, 원본 파일명)
+                UpLoadFile upFile = new UpLoadFile(board.getId(), fullPath, newFilename, file.getOriginalFilename());
+                System.out.println("upFile = " + upFile);
+
+                fileService.uploadFile(upFile);
+            }
         }
 
         return "redirect:/board";
@@ -82,9 +100,11 @@ public class BoardController {
 
     // 게시물 보기
     @GetMapping("/contents")
-    public String readContents(Model model, @RequestParam String id,
+    public String readContents(Model model, @RequestParam String id, @RequestParam String page,
                                HttpServletRequest request,
                                HttpServletResponse response) {
+
+        System.out.println("page = " + page);
 
         // 조회 수 설정 //
         // 쿠키 조회
@@ -100,7 +120,8 @@ public class BoardController {
 
         // 쿠키 없을 경우 - 최초 등록
         if(oldCookie == null) {
-
+            System.out.println("쿠키 없음");
+            System.out.println("id = " + id);
             // 조회 수 증가
             boardService.viewCountUp(Long.parseLong(id));
 
@@ -111,9 +132,11 @@ public class BoardController {
         }
         // 쿠키 있을 경우
         else {
+            System.out.println("쿠키 있음");
             // 해당 게시물 id 확인
             if (!oldCookie.getValue().contains("[" + id.toString() + "]")) {
 
+                System.out.println("해당 게시물 쿠키가 없을 경우");
                 // 조회 수 증가
                 boardService.viewCountUp(Long.parseLong(id));
 
@@ -140,10 +163,57 @@ public class BoardController {
             replyInfo.put(r, contentList);
         }
 
+        // Upload File 조회
+       List<UpLoadFile> fileList = fileService.uploadFileList(Long.parseLong(id));
+        System.out.println("fileList = " + fileList);
 
         model.addAttribute("board", board);         // 게시물 정보
         model.addAttribute("content", strList);     // 게시물 내용
         model.addAttribute("replyList", replyInfo); // 댓글 정보
+        model.addAttribute("pageNo", page);         // 페이지 번호 (목록 이동 시 필요)
+        model.addAttribute("fileList", fileList);   // 다운로드 파일 리스트
         return "/boards/content";
+    }
+
+    @GetMapping("/delete")
+    public String deleteContent(@RequestParam String id) {
+
+        System.out.println("id = " + id);
+        boardService.delete(Long.parseLong(id));
+        return "redirect:/board";
+    }
+
+    @PostMapping("/modify")
+    public String modifyContent(Model model, Board board, @RequestParam String page) {
+        System.out.println("board = " + board);
+        System.out.println("page = " + page);
+
+        model.addAttribute("board", board);
+        model.addAttribute("pageNo", page);
+        return"/boards/modify";
+    }
+
+    @PostMapping("/modify/submit")
+    public String modifySubmit(Board board, @RequestParam String page) {
+        System.out.println("board = " + board);
+        System.out.println("page = " + page);
+
+        boardService.update(board);
+        return "redirect:/board/contents?id=" + board.getId() + "&page=" + page;
+    }
+
+    @GetMapping("/download/{fileName}")
+    public ResponseEntity<Resource> fileDownload(@PathVariable("fileName")String fileName) throws IOException {
+
+        System.out.println("fileName = " + fileName);
+
+        UpLoadFile file = fileService.getFile(fileName);
+        Path path = Paths.get(file.getFullPath());
+
+        Resource resource = new InputStreamResource(Files.newInputStream(path));
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getOriFilename() + "\"")
+                .body(resource);
     }
 }
