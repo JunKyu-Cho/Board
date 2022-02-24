@@ -66,6 +66,7 @@ public class BoardController {
         return"/boards/write";
     }
 
+    // summernote에 이미지 로드
     @PostMapping("/write/imageUpload")
     @ResponseBody
     public String imageUpload(@RequestParam("file") MultipartFile file) throws IOException {
@@ -77,9 +78,10 @@ public class BoardController {
         // 1. 원본 파일 저장
         file.transferTo(new File(fullPath));
 
-        // /summernoteImage/ => WebConfig에서 경로 설정
+        // /summernoteImage/ => 정적 리소스 설정 : WebConfig에서 경로 설정
         return "/summernoteImage/" + filename;
     }
+
     // 글 작성
     @PostMapping("/write/add")
     public String addContext(Board board, HttpServletRequest request, @RequestBody List<MultipartFile> files) throws IOException {         // @ModelAttribute는 생략 가능
@@ -173,6 +175,7 @@ public class BoardController {
         return "/boards/content";
     }
 
+    // 게시물 삭제
     @GetMapping("/delete")
     public String deleteContent(@RequestParam String id) {
 
@@ -181,6 +184,7 @@ public class BoardController {
         return "redirect:/board";
     }
 
+    // 게시물 수정 화면 맵핑
     @PostMapping("/modify")
     public String modifyContent(Model model, Board board, @RequestParam String page) {
         System.out.println("board = " + board);
@@ -191,6 +195,7 @@ public class BoardController {
         return"/boards/modify";
     }
 
+    // 게시물 수정
     @PostMapping("/modify/submit")
     public String modifySubmit(Board board, @RequestParam String page, @RequestBody List<MultipartFile> files) throws IOException {
         System.out.println("board = " + board);
@@ -201,6 +206,7 @@ public class BoardController {
         return "redirect:/board/contents?id=" + board.getId() + "&page=" + page;
     }
 
+    // 파일 다운로드
     @GetMapping("/download/{fileName}")
     public ResponseEntity<Resource> fileDownload(@PathVariable("fileName")String fileName) throws IOException {
 
