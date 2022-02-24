@@ -11,8 +11,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.*;
 import java.io.File;
@@ -63,7 +65,21 @@ public class BoardController {
     public String write() {
         return"/boards/write";
     }
-    
+
+    @PostMapping("/write/imageUpload")
+    @ResponseBody
+    public String imageUpload(@RequestParam("file") MultipartFile file) throws IOException {
+
+        String filename = UUID.randomUUID() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+        // 저장 파일 Full Path
+        String fullPath = "C:/temp/"+ filename;
+
+        // 1. 원본 파일 저장
+        file.transferTo(new File(fullPath));
+
+        // /summernoteImage/ => WebConfig에서 경로 설정
+        return "/summernoteImage/" + filename;
+    }
     // 글 작성
     @PostMapping("/write/add")
     public String addContext(Board board, HttpServletRequest request, @RequestBody List<MultipartFile> files) throws IOException {         // @ModelAttribute는 생략 가능
@@ -77,22 +93,7 @@ public class BoardController {
             System.out.println("board = " + board);
             System.out.println("files = " + files);
 
-            for(MultipartFile file : files){
-                // UUID - 고유번호를 얻기 위함, getExtension() - 파일 확장자 확인
-                String newFilename = UUID.randomUUID() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
-
-                // 저장 파일 Full Path
-                String fullPath = "C:/temp/"+ newFilename;
-
-                // 1. 원본 파일 저장
-                file.transferTo(new File(fullPath));
-
-                // 2. 파일 정보 (게시글 id, Full Path, 저장 파일명, 원본 파일명)
-                UpLoadFile upFile = new UpLoadFile(board.getId(), fullPath, newFilename, file.getOriginalFilename());
-                System.out.println("upFile = " + upFile);
-
-                fileService.uploadFile(upFile);
-            }
+            fileService.uploadFile(board.getId(), files);
         }
 
         return "redirect:/board";
@@ -149,8 +150,6 @@ public class BoardController {
 
         // 게시물 조회
         Board board = boardService.read(Long.parseLong(id));
-        // content => 라인별로 List 처리
-        List<String> strList = Arrays.asList(board.getContent().split("\r\n"));
 
         // 댓글 조회
         List<Reply> replyList = replyService.selectAll(Long.parseLong(id));
@@ -168,7 +167,6 @@ public class BoardController {
         System.out.println("fileList = " + fileList);
 
         model.addAttribute("board", board);         // 게시물 정보
-        model.addAttribute("content", strList);     // 게시물 내용
         model.addAttribute("replyList", replyInfo); // 댓글 정보
         model.addAttribute("pageNo", page);         // 페이지 번호 (목록 이동 시 필요)
         model.addAttribute("fileList", fileList);   // 다운로드 파일 리스트
@@ -194,11 +192,12 @@ public class BoardController {
     }
 
     @PostMapping("/modify/submit")
-    public String modifySubmit(Board board, @RequestParam String page) {
+    public String modifySubmit(Board board, @RequestParam String page, @RequestBody List<MultipartFile> files) throws IOException {
         System.out.println("board = " + board);
         System.out.println("page = " + page);
 
         boardService.update(board);
+        fileService.uploadFile(board.getId(), files);
         return "redirect:/board/contents?id=" + board.getId() + "&page=" + page;
     }
 

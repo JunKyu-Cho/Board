@@ -19,5 +19,11 @@ public class Paging {
         lastPage = (int)Math.ceil((double)total / (double)cntPerPage);
         endPage = (((int)Math.ceil((double)nowPage / (double)cntPage)) * cntPage) > getLastPage() ? getLastPage() : ((int)Math.ceil((double)nowPage / (double)cntPage)) * cntPage;
         startPage = (((int)Math.ceil((double)endPage / (double)cntPage) - 1) * cntPage) + 1;
+
+        if(total == 0) {
+            lastPage = 1;
+            endPage = 1;
+            startPage = 1;
+        }
     }
 }

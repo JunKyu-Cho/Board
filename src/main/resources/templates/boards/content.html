@@ -3,6 +3,8 @@
 <head>
     <title>게시판</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
     <style>
         nav {
@@ -116,7 +118,7 @@
     <div class="container">
         <h2 style="text-align: center;">게시글</h2>
 
-        <div>
+        <div >
             <article style="width: 100%">
                 <!-- 타이틀 -->
                 <header>
@@ -134,7 +136,7 @@
                 </section>
 
                 <!-- 수정, 삭제, 목록 버튼 -->
-                <div style="margin: 0 0 10px; padding: 10px 0; height: 30px;">
+                <div style="margin: 0 0 10px; padding: 10px 0; height: 30px; padding-right: 20px">
 
                     <form name="contentInfo" style="float: right;">
                         <input type="hidden" name="id" th:value="${board.id}">
@@ -161,11 +163,8 @@
 
                 <!-- 게시물 내용 -->
                 <section>
-                    <div style="height: auto; min-height: 200px; table-layout:fixed; word-break:break-all; border-bottom: 1px solid gray;">
-                        <th:block th:each="text : ${content}">
-                            <p th:text="${text}"></p>
-                        </th:block>
-                    </div>
+                    <div style="height: auto; min-height: 200px; table-layout:fixed; word-break:break-all; border-bottom: 1px solid gray;"
+                         th:utext="${board.content}" ></div>
 
                     <!-- 파일 다운로드 -->
                     <div th:if="${fileList} != null" style="padding: 10px 0; border-bottom: 1px solid gray;">
@@ -179,7 +178,7 @@
                 </section>
 
                 <!-- 댓글 -->
-                <div>
+                <div style="margin-top: 50px;">
                     <!-- HashMap 반복 -->
                     <div style="padding: 0 0 10px; border-bottom: 1px solid #333;" th:each="map, i : ${replyList}">
 
@@ -191,7 +190,7 @@
 
                             <th:block th:if="${session.userId == reply.writer}">
                                 <!-- 댓글 마다 다른 폼이기 때문에 id 값을 달리 주기 위함 -->
-                                <form th:id="'form'+${i.index}" style="float: right;">
+                                <form th:id="'form'+${i.index}" style="float: right; padding-right: 20px">
                                     <input type="hidden" name="replyId" th:value="${reply.replyId}">
                                     <input type="hidden" name="contentId" th:value="${board.id}">
                                     <input type="hidden" name="page" th:value="${pageNo}">
@@ -203,7 +202,7 @@
                                 </form>
 
                                 <!-- 댓글 수정 -->
-                                <form th:id="'modifyForm'+${i.index}" style="display: none; margin-top: 20px">
+                                <form th:id="'modifyForm'+${i.index}" style="display: none; margin-top: 20px;">
                                     <input type="hidden" name="replyId" th:value="${reply.replyId}">
                                     <input type="hidden" name="contentId" th:value="${board.id}">
                                     <input type="hidden" name="page" th:value="${pageNo}">
