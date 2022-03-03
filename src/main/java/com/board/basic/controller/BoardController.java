@@ -4,6 +4,8 @@ import com.board.basic.domain.*;
 import com.board.basic.service.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -11,10 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.*;
 import java.io.File;
@@ -33,6 +33,8 @@ public class BoardController {
     private final PagingService pagingService;
     private final ReplyService replyService;
     private final FileService fileService;
+
+    private static Logger log = LogManager.getLogger(BoardController.class);
 
     // 게시판 메인 맵핑 (게시물 리스트)
     @GetMapping("")
@@ -56,6 +58,9 @@ public class BoardController {
 
         model.addAttribute("paging", paging);
         model.addAttribute("list", pagingService.selectBoard(paging));
+
+        log.info("Hello Info level log");
+        log.error("Hello Error level log");
 
         return "/boards/board";
     }
@@ -85,7 +90,7 @@ public class BoardController {
     // 글 작성
     @PostMapping("/write/add")
     public String addContext(Board board, HttpServletRequest request,
-                             @RequestBody List<MultipartFile> files) throws IOException {         // @ModelAttribute는 생략 가능
+                             @RequestBody List<MultipartFile> uploadFiles) throws IOException {         // @ModelAttribute는 생략 가능
 
         String userId =(String)request.getSession().getAttribute("userId");
 
@@ -95,9 +100,9 @@ public class BoardController {
             board.setViewCount(0);
             boardService.write(board);
             System.out.println("board = " + board);
-            System.out.println("files = " + files);
+            System.out.println("files = " + uploadFiles);
 
-            fileService.uploadFile(board.getId(), files);
+            fileService.uploadFile(board.getId(), uploadFiles);
         }
 
         return "redirect:/board";

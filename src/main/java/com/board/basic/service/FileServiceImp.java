@@ -25,20 +25,24 @@ public class FileServiceImp implements FileService{
     @Override
     public void uploadFile(long id, List<MultipartFile> files) throws IOException {
         for(MultipartFile file : files){
-            // UUID - 고유번호를 얻기 위함, getExtension() - 파일 확장자 확인
-            String newFilename = UUID.randomUUID() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
 
-            // 저장 파일 Full Path
-            String fullPath = "C:/temp/"+ newFilename;
+            // 업로드 파일이 없어도 해당 로직 한번 실행 됨 - 파일명 확인해서 작업하도록 수정
+            if(!file.getOriginalFilename().isEmpty()) {
+                // UUID - 고유번호를 얻기 위함, getExtension() - 파일 확장자 확인
+                String newFilename = UUID.randomUUID() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
 
-            // 원본 파일 저장
-            file.transferTo(new File(fullPath));
+                // 저장 파일 Full Path
+                String fullPath = "C:/temp/" + newFilename;
 
-            // 파일 저장 정보 (게시글 id, Full Path, 저장 파일명, 원본 파일명)
-            UpLoadFile upFile = new UpLoadFile(id, fullPath, newFilename, file.getOriginalFilename());
-            System.out.println("upFile = " + upFile);
+                // 원본 파일 저장
+                file.transferTo(new File(fullPath));
 
-            fileRepository.uploadFile(upFile);
+                // 파일 저장 정보 (게시글 id, Full Path, 저장 파일명, 원본 파일명)
+                UpLoadFile upFile = new UpLoadFile(id, fullPath, newFilename, file.getOriginalFilename());
+                System.out.println("upFile = " + upFile);
+
+                fileRepository.uploadFile(upFile);
+            }
         }
     }
 

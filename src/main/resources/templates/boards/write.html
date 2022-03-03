@@ -104,7 +104,7 @@
 
     <script>
         function writeSubmit() {
-            var form = document.write;
+            var form = document.writeForm;
             form.action = "/board/write/add";
             form.method = "post";
             form.enctype = "multipart/form-data";
@@ -128,7 +128,7 @@
     <div class="container">
         <h2 style="text-align: center;">게시글 글쓰기</h2>
 
-        <form name="write">
+        <form name="writeForm" id="writeForm">
             <table style="border-spacing: 10px 20px">
                 <tbody>
                 <tr>
@@ -173,7 +173,10 @@
                         <label>첨부파일</label>
                     </th>
                     <td>
-                        <input multiple="multiple" type="file" id="files" name="files"/>
+                        <input multiple="multiple" type="file" id="uploadFiles" name="uploadFiles"/>
+<!--                        <label style="padding: .5em .5em; color: #fff; line-height: normal; vertical-align: middle; background-color: #337ab7; border: 1px solid #ebebeb;border-radius: .3em;"-->
+<!--                               for="files">파일선택</label>-->
+<!--                        <input style="display: none;" type="file" id="files">-->
                     </td>
                 </tr>
                 </tbody>

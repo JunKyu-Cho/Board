@@ -36,8 +36,8 @@
 
     <delete id="delete" parameterType="long">
         DELETE FROM REPLY WHERE CONTENT_ID = #{id};
+        DELETE FROM UPLOAD_FILE WHERE ID = #{id};
         DELETE FROM BOARD WHERE ID = #{id};
-        DELETE FROM FILE WHERE ID = #{id};
     </delete>
 
 </mapper>

@@ -91,8 +91,8 @@
             form.submit();
         };
 
-        function deleteReply(frm) {
-            var form = document.forms[frm];
+        function deleteReply(id) {
+            var form = document.getElementById('form' + id);
             form.action = "/reply/delete";
             form.method ="post";
             form.submit();
@@ -100,30 +100,45 @@
 
         function replyModify(id) {
 
+            $('#summernote_modify'+ id).summernote({
+                toolbar: [
+                    // [groupName, [list of button]]
+                    ['fontname', ['fontname']],
+                    ['fontsize', ['fontsize']],
+                    ['style', ['bold', 'italic', 'underline','strikethrough', 'clear']],
+                    ['color', ['forecolor','color']],
+                    ['table', ['table']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']]
+			    ],
+			    fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New','맑은 고딕','궁서','굴림체','굴림','돋움체','바탕체'],
+			    fontSizes: ['8','9','10','11','12','14','16','18','20','22','24','28','30','36','50','72'],
+                placeholder: '여기에 내용을 적으세요.',
+                height: 70,
+                minHeight: null,
+                maxHeight: null,
+                focus: true,
+                lang: 'ko-KR',
+                disableResizeEditor: true,
+                callbacks: {
+                    onImageUpload: function(files, editor, welEditable) {
+                        for(var i=files.length-1; i>=0; i--){
+                            imageUpload(files[i], this);
+                        }
+                    }
+                }
+            });
+
             var modifyForm = document.getElementById('modifyForm' + id);
             var divContent = document.getElementById('divContent' + id);
 
             <!-- 기존 댓글 안보이게. 수정할 textarea는 보이게 설정 -->
             modifyForm.style.display = 'block';
             divContent.style.display = 'none';
-
-
-            var str = "";
-            var children = divContent.children;
-            for(var i = 0; i < children.length; i++) {
-                if(i == (children.length - 1))
-                    str += children[i].innerText;
-                else
-                    str += children[i].innerText + "\r\n";
-            }
-
-            <!-- 0: input(replyId), 1: input(contentId), 2: input(page), 3: textarea(content)  -->
-<!--            modifyForm.children[3].value = str;-->
-            modifyForm.children[3].value = divContent.value;
         };
 
         function modifyClick(id) {
-            var form = document.forms['modifyForm' + id];
+            var form = document.getElementById('modifyForm' + id);
             form.action = "/reply/modify";
             form.method ="post";
             form.submit();
@@ -180,7 +195,7 @@
                 <!-- 수정, 삭제, 목록 버튼 -->
                 <div style="margin: 0 0 10px; padding: 10px 0; height: 30px; padding-right: 20px">
 
-                    <form name="contentInfo" style="float: right;">
+                    <form name="contentInfo" id="contentInfo" style="float: right;">
                         <input type="hidden" name="id" th:value="${board.id}">
                         <input type="hidden" name="title" th:value="${board.title}">
                         <input type="hidden" name="content" th:value="${board.content}">
@@ -221,15 +236,14 @@
 
                 <!-- 댓글 -->
                 <div style="margin-top: 50px;">
-                    <!-- HashMap 반복 -->
+                    <!-- 댓글 리스트 반복 -->
                     <div style="padding: 0 0 10px; border-bottom: 1px solid #333;" th:each="reply, i : ${replyList}">
 
-                        <!-- reply 값 중 -->
                         <div style="margin-bottom: 10px">
-
                             <span style="margin-left: 20px; font-size: 12px; color: gray" th:text="${reply.writer}"></span>
                             <span style="margin-left: 20px; font-size: 12px; color: gray" th:text="${reply.regDate}"></span>
 
+                            <!-- 댓글 작성자는 댓글 수정, 삭제 가능 -->
                             <th:block th:if="${session.userId == reply.writer}">
                                 <!-- 댓글 마다 다른 폼이기 때문에 id 값을 달리 주기 위함 -->
                                 <form th:id="'form'+${i.index}" style="float: right; padding-right: 20px">
@@ -237,61 +251,31 @@
                                     <input type="hidden" name="contentId" th:value="${board.id}">
                                     <input type="hidden" name="page" th:value="${pageNo}">
 
+                                    <!-- 해당 폼 작업을 위해 파라미터 값으로 폼 id 전달 -->
                                     <a th:onclick="|javascript:replyModify(${i.index})|" class="abtn" style="width: 40px; height: 25px; margin-top: 5px">수정</a>
-                                    <!-- 해당 폼의 submit을 수행 하기 위해 파라미터 값으로 폼 id 전달 -->
-                                    <!--                                    <a th:onclick="|javascript:deleteReply('form'+${reply.replyId})|" class="abtn" style="width: 40px; height: 25px; margin-top: 5px">삭제</a>-->
-                                    <a th:onclick="|javascript:deleteReply('form'+${i.index})|" class="abtn" style="width: 40px; height: 25px; margin-top: 5px">삭제</a>
+                                    <a th:onclick="|javascript:deleteReply(${i.index})|" class="abtn" style="width: 40px; height: 25px; margin-top: 5px">삭제</a>
                                 </form>
 
-                                <!-- 댓글 수정 -->
+                                <!-- 댓글 수정 선택 시 보여짐 -->
                                 <form th:id="'modifyForm'+${i.index}" style="display: none; margin-top: 20px;">
                                     <input type="hidden" name="replyId" th:value="${reply.replyId}">
                                     <input type="hidden" name="contentId" th:value="${board.id}">
                                     <input type="hidden" name="page" th:value="${pageNo}">
 
-                                    <textarea name="content" rows="3" style="resize: none; box-sizing: border-box; overflow: auto; padding: 5px; width: 750px"></textarea>
-                                    <a th:onclick="|javascript:modifyClick(${i.index})|" class="abtn" style="width: 40px; height: 25px; margin-top: 30px; float: right;">확인</a>
+                                    <div style="display: inline-block; width: 90%;">
+                                        <textarea th:id="'summernote_modify'+${i.index}" name="content" rows="3" th:utext="${reply.content}"
+                                                  style="resize: none; box-sizing: border-box; overflow: auto; padding: 5px;"></textarea>
+                                    </div>
+                                    <a th:onclick="|javascript:modifyClick(${i.index})|" class="abtn" style="width: 40px; height: 25px; margin-left: 10px">확인</a>
                                 </form>
+
                             </th:block>
                         </div>
+                        <!-- 댓글 내용 -->
                         <div th:id="'divContent'+${i.index}" >
                             <p style="margin: 0 10px" th:utext="${reply.content}" visibility></p>
                         </div>
-<!--                        <div th:each="reply : ${map.key}" style="margin-bottom: 10px">-->
 
-<!--                            <span style="margin-left: 20px; font-size: 12px; color: gray" th:text="${reply.writer}"></span>-->
-<!--                            <span style="margin-left: 20px; font-size: 12px; color: gray" th:text="${reply.regDate}"></span>-->
-
-<!--                            <th:block th:if="${session.userId == reply.writer}">-->
-<!--                                &lt;!&ndash; 댓글 마다 다른 폼이기 때문에 id 값을 달리 주기 위함 &ndash;&gt;-->
-<!--                                <form th:id="'form'+${i.index}" style="float: right; padding-right: 20px">-->
-<!--                                    <input type="hidden" name="replyId" th:value="${reply.replyId}">-->
-<!--                                    <input type="hidden" name="contentId" th:value="${board.id}">-->
-<!--                                    <input type="hidden" name="page" th:value="${pageNo}">-->
-
-<!--                                    <a th:onclick="|javascript:replyModify(${i.index})|" class="abtn" style="width: 40px; height: 25px; margin-top: 5px">수정</a>-->
-<!--                                    &lt;!&ndash; 해당 폼의 submit을 수행 하기 위해 파라미터 값으로 폼 id 전달 &ndash;&gt;-->
-<!--&lt;!&ndash;                                    <a th:onclick="|javascript:deleteReply('form'+${reply.replyId})|" class="abtn" style="width: 40px; height: 25px; margin-top: 5px">삭제</a>&ndash;&gt;-->
-<!--                                    <a th:onclick="|javascript:deleteReply('form'+${i.index})|" class="abtn" style="width: 40px; height: 25px; margin-top: 5px">삭제</a>-->
-<!--                                </form>-->
-
-<!--                                &lt;!&ndash; 댓글 수정 &ndash;&gt;-->
-<!--                                <form th:id="'modifyForm'+${i.index}" style="display: none; margin-top: 20px;">-->
-<!--                                    <input type="hidden" name="replyId" th:value="${reply.replyId}">-->
-<!--                                    <input type="hidden" name="contentId" th:value="${board.id}">-->
-<!--                                    <input type="hidden" name="page" th:value="${pageNo}">-->
-
-<!--                                    <textarea name="content" rows="3" style="resize: none; box-sizing: border-box; overflow: auto; padding: 5px; width: 750px"></textarea>-->
-<!--                                    <a th:onclick="|javascript:modifyClick(${i.index})|" class="abtn" style="width: 40px; height: 25px; margin-top: 30px; float: right;">확인</a>-->
-<!--                                </form>-->
-<!--                            </th:block>-->
-<!--                        </div>-->
-                        <!-- List<String> 값 중 -->
-<!--                        <div th:id="'divContent'+${i.index}" >-->
-<!--                            <th:block th:each="content : ${map.value}">-->
-<!--                                <p style="margin: 0 10px" th:text="${content}" visibility></p>-->
-<!--                            </th:block>-->
-<!--                        </div>-->
                     </div>
                 </div>
 
@@ -302,7 +286,7 @@
                     <input type="hidden" name="writer" th:value="${session.userId}">
                     <input type="hidden" name="page" th:value="${pageNo}">
 
-                    <!-- 로그인 상태 일 경우 만 -->
+                    <!-- 로그인 상태 일 경우 만 댓글 쓰기 가능 -->
                     <th:block th:if="${session.userId != null}">
                         <textarea id="summernote_min" name="content" rows="3" style="resize: none; box-sizing: border-box; overflow: auto; padding: 5px; width: 100%"></textarea>
                         <div style="text-align: right">
