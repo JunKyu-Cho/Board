@@ -4,8 +4,6 @@ import com.board.basic.domain.*;
 import com.board.basic.service.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -34,8 +32,6 @@ public class BoardController {
     private final ReplyService replyService;
     private final FileService fileService;
 
-    private static Logger log = LogManager.getLogger(BoardController.class);
-
     // 게시판 메인 맵핑 (게시물 리스트)
     @GetMapping("")
     public String mainView(Model model,
@@ -58,9 +54,6 @@ public class BoardController {
 
         model.addAttribute("paging", paging);
         model.addAttribute("list", pagingService.selectBoard(paging));
-
-        log.info("Hello Info level log");
-        log.error("Hello Error level log");
 
         return "/boards/board";
     }
