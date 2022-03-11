@@ -105,7 +105,18 @@
     <script>
         function writeSubmit() {
             var form = document.writeForm;
-            form.action = "/board/write/add";
+
+            if(form.title.value.length <= 0) {
+                alert('제목을 입력하세요');
+                return;
+            }
+
+            if(form.content.value.length <= 0) {
+                alert('내용을 입력하세요');
+                return;
+            }
+
+            form.action = "/board/write";
             form.method = "post";
             form.enctype = "multipart/form-data";
             form.submit();

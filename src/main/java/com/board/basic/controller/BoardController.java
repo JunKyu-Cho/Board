@@ -58,12 +58,6 @@ public class BoardController {
         return "/boards/board";
     }
 
-    // 글 작성 화면 맵핑
-    @GetMapping("/write")
-    public String write() {
-        return"/boards/write";
-    }
-
     // summernote에 이미지 로드
     @PostMapping("/write/imageUpload")
     @ResponseBody
@@ -80,8 +74,17 @@ public class BoardController {
         return "/summernoteImage/" + filename;
     }
 
+    // 글 작성 화면 맵핑
+    @GetMapping("/write")
+    public String write() {
+        return"/boards/write";
+    }
+
+
     // 글 작성
-    @PostMapping("/write/add")
+//    @PostMapping("/write/add")    // GET, POST 따로 사용 가능
+
+    @PostMapping("/write")
     public String addContext(Board board, HttpServletRequest request,
                              @RequestBody List<MultipartFile> uploadFiles) throws IOException {         // @ModelAttribute는 생략 가능
 
@@ -107,18 +110,20 @@ public class BoardController {
                                HttpServletRequest request,
                                HttpServletResponse response) {
 
+        System.out.println("id = " + id);
         System.out.println("page = " + page);
 
-        // 조회 수 설정 //
-        boardService.viewCountUp(Long.parseLong(id), request, response);
+        try{
+            // 조회 수 설정 //
+            boardService.viewCountUp(Long.parseLong(id), request, response);
 
-        // 게시물 조회
-        Board board = boardService.read(Long.parseLong(id));
+            // 게시물 조회
+            Board board = boardService.read(Long.parseLong(id));
 
-        // 댓글 조회
-        List<Reply> replyList = replyService.selectAll(Long.parseLong(id));
+            // 댓글 조회
+            List<Reply> replyList = replyService.selectAll(Long.parseLong(id));
 
-        // 댓글 정보, 댓글 라인별 텍스트 HaspMap (Haspmap의 순서를 보장 받기 위함 => LinkedHashMap)
+            // 댓글 정보, 댓글 라인별 텍스트 HaspMap (Haspmap의 순서를 보장 받기 위함 => LinkedHashMap)
 //        Map<Reply, List<String>> replyInfo = new LinkedHashMap<>();
 //        for(Reply r : replyList) {
 //            System.out.println("r = " + r);
@@ -126,15 +131,23 @@ public class BoardController {
 //            replyInfo.put(r, contentList);
 //        }
 
-        // Upload File 조회
-       List<UpLoadFile> fileList = fileService.uploadFileList(Long.parseLong(id));
+            // Upload File 조회
+            List<UpLoadFile> fileList = fileService.uploadFileList(Long.parseLong(id));
 
-        model.addAttribute("board", board);         // 게시물 정보
+            if(board == null)
+                throw new NullPointerException();
+
+            model.addAttribute("board", board);         // 게시물 정보
 //        model.addAttribute("replyList", replyInfo); // 댓글 정보
-        model.addAttribute("replyList", replyList);
-        model.addAttribute("pageNo", page);         // 페이지 번호 (목록 이동 시 필요)
-        model.addAttribute("fileList", fileList);   // 다운로드 파일 리스트
-        return "/boards/content";
+            model.addAttribute("replyList", replyList);
+            model.addAttribute("pageNo", page);         // 페이지 번호 (목록 이동 시 필요)
+            model.addAttribute("fileList", fileList);   // 다운로드 파일 리스트
+            return "/boards/content";
+
+        } catch (Exception e) {
+            System.out.println("Error Reason = " + e.toString());
+            return "redirect:/board";
+        }
     }
 
     // 게시물 삭제
@@ -164,14 +177,25 @@ public class BoardController {
         System.out.println("board = " + board);
         System.out.println("page = " + page);
 
-        boardService.update(board);
-        fileService.uploadFile(board.getId(), files);
+        try {
+            boardService.update(board);
+            fileService.uploadFile(board.getId(), files);
+        } catch (Exception e) {
+            System.out.println("Error Reason = " + e.toString());
+            return "redirect:/board";
+        }
+
+
         return "redirect:/board/contents?id=" + board.getId() + "&page=" + page;
     }
 
     // 파일 다운로드
     @GetMapping("/download/{fileName}")
     public ResponseEntity<Resource> fileDownload(@PathVariable("fileName")String fileName) throws IOException {
+
+        // ResponseEntity => @ResponseBody 어노테이션 대신 사용
+        // body 는 리턴 타입과 같은 타입이 들어가야 함
+
 
         System.out.println("fileName = " + fileName);
 

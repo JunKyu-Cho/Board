@@ -23,6 +23,12 @@ public class BoardServiceImp implements BoardService{
     @Override
     public void viewCountUp(Long id, HttpServletRequest request, HttpServletResponse response) {
 
+        try {
+
+        } catch (Exception e) {
+            throw e;
+        }
+
         // 쿠키 조회
         Cookie oldCookie = null;
         Cookie cookies[] = request.getCookies();
