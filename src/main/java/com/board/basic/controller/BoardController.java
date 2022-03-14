@@ -47,7 +47,18 @@ public class BoardController {
             cntPerPage = "5";
         }
 
+        // 페이지 내 게시글 수의 값이 잘못 들어왔을 경우 5로 설정
+        if( Integer.parseInt(cntPerPage) > 20 || Integer.parseInt(cntPerPage) % 5 != 0) {
+            cntPerPage = "5";
+        }
+
         int total = boardService.readCount();
+        
+        // 페이지 값이 잘못 들어왔을 경우 1번 페이지로 이동
+        if (Integer.parseInt(page) > (int)Math.ceil((double)total / Double.parseDouble(cntPerPage))) {
+            page = "1";
+        }
+
         Paging paging = new Paging(total, Integer.parseInt(page), Integer.parseInt(cntPerPage));
 
         System.out.println("paging = " + paging);
@@ -134,8 +145,8 @@ public class BoardController {
             // Upload File 조회
             List<UpLoadFile> fileList = fileService.uploadFileList(Long.parseLong(id));
 
-            if(board == null)
-                throw new NullPointerException();
+//            if(board == null)
+//                throw new NullPointerException();
 
             model.addAttribute("board", board);         // 게시물 정보
 //        model.addAttribute("replyList", replyInfo); // 댓글 정보
